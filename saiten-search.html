@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAG CoP — 採点規則検索</title>
+<style>
+  :root{
+    --bg:#0a0b0d;
+    --panel:#121419;
+    --panel-2:#171a21;
+    --line:#23262f;
+    --line-bright:#333744;
+    --txt:#e8eaed;
+    --txt-dim:#7d8290;
+    --txt-faint:#4d525e;
+    --green:#00e676;     /* 改善・自己ベスト */
+    --purple:#b388ff;    /* セッションベスト・最速 */
+    --yellow:#ffd400;    /* 注意・ヒット強調 */
+    --green-dim:rgba(0,230,118,.14);
+    --purple-dim:rgba(179,136,255,.16);
+    --yellow-dim:rgba(255,212,0,.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:ui-monospace,"SF Mono","Roboto Mono",Menlo,Consolas,monospace;}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px 100px;}
+
+  /* ===== telemetry top bar ===== */
+  .topbar{
+    display:flex;align-items:center;gap:18px;
+    border-bottom:1px solid var(--line);
+    padding:14px 0;margin-bottom:0;
+    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.18em;
+    color:var(--txt-dim);text-transform:uppercase;
+  }
+  .topbar .live{display:flex;align-items:center;gap:7px;color:var(--green);}
+  .topbar .live::before{
+    content:"";width:7px;height:7px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+  .topbar .sep{flex:1;height:1px;background:var(--line);}
+
+  /* ===== header ===== */
+  header{padding:30px 0 22px;}
+  .eyebrow{
+    font-family:ui-monospace,monospace;
+    font-size:11px;letter-spacing:.42em;color:var(--purple);
+    text-transform:uppercase;margin:0 0 12px;
+  }
+  h1{
+    font-size:38px;font-weight:800;margin:0;letter-spacing:.01em;line-height:1.1;
+  }
+  h1 .slash{color:var(--yellow);font-weight:400;}
+  .sub{color:var(--txt-dim);font-size:13px;margin:10px 0 0;letter-spacing:.04em;}
+
+  /* ===== nav (tab strip) ===== */
+  .nav{display:flex;gap:0;margin-top:22px;border-bottom:1px solid var(--line);}
+  .nav a{
+    font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;text-decoration:none;color:var(--txt-dim);
+    padding:11px 20px;border-bottom:2px solid transparent;margin-bottom:-1px;
+    transition:color .15s,border-color .15s,background .15s;
+  }
+  .nav a:hover{color:var(--txt);background:var(--panel);}
+  .nav a.here{color:var(--bg);background:var(--green);border-bottom-color:var(--green);font-weight:700;}
+
+  /* ===== search field ===== */
+  .search-zone{position:sticky;top:0;background:var(--bg);z-index:9;
+    padding:22px 0 14px;}
+  .field{position:relative;}
+  .field svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);
+    width:18px;height:18px;stroke:var(--yellow);}
+  input[type=search]{
+    width:100%;font-size:17px;padding:15px 16px 15px 46px;
+    border:1px solid var(--line-bright);border-radius:3px;
+    background:var(--panel);color:var(--txt);
+    font-family:ui-monospace,monospace;outline:none;letter-spacing:.02em;
+  }
+  input[type=search]::placeholder{color:var(--txt-faint);}
+  input[type=search]:focus{border-color:var(--yellow);
+    box-shadow:0 0 0 3px var(--yellow-dim);background:var(--panel-2);}
+
+  .meta-row{display:flex;justify-content:space-between;align-items:center;
+    margin-top:12px;font-family:ui-monospace,monospace;
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-dim);}
+  .count strong{color:var(--green);font-size:13px;}
+  .scope{color:var(--purple);}
+
+  /* ===== results ===== */
+  ul.results{list-style:none;margin:18px 0 0;padding:0;}
+  li.hit{
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--purple);
+    border-radius:3px;margin-bottom:10px;
+    display:grid;grid-template-columns:74px 1fr;
+    overflow:hidden;transition:border-color .15s,transform .12s;
+  }
+  li.hit:hover{border-color:var(--line-bright);border-left-color:var(--yellow);transform:translateX(2px);}
+  .page-cell{
+    background:var(--panel-2);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:12px 4px;font-family:ui-monospace,monospace;
+  }
+  .page-cell .lab{font-size:9px;letter-spacing:.2em;color:var(--txt-faint);text-transform:uppercase;}
+  .page-cell .num{font-size:22px;font-weight:700;color:var(--purple);line-height:1.1;}
+  .hit-body{padding:14px 16px;min-width:0;}
+  .filename{font-family:ui-monospace,monospace;font-size:12px;margin:0 0 7px;
+    letter-spacing:.02em;display:flex;align-items:center;gap:8px;}
+  .filename a{color:var(--green);text-decoration:none;}
+  .filename a:hover{color:var(--yellow);text-decoration:underline;}
+  .filename .ext{color:var(--txt-faint);}
+  .snippet{font-size:14px;color:#c7cad2;margin:0;line-height:1.7;}
+  mark{background:var(--yellow);color:#0a0b0d;padding:0 3px;border-radius:2px;font-weight:600;}
+
+  .empty{padding:70px 20px;text-align:center;color:var(--txt-dim);
+    font-family:ui-monospace,monospace;font-size:13px;letter-spacing:.08em;}
+  .empty .big{font-size:30px;color:var(--line-bright);margin-bottom:16px;letter-spacing:.3em;}
+  .empty .accent{color:var(--purple);}
+
+  footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;
+    font-family:ui-monospace,monospace;font-size:11px;color:var(--txt-faint);
+    letter-spacing:.06em;line-height:1.9;}
+
+  @media(max-width:560px){
+    h1{font-size:28px;}
+    .topbar{gap:10px;font-size:10px;flex-wrap:wrap;}
+    li.hit{grid-template-columns:58px 1fr;}
+    .nav a{padding:11px 13px;letter-spacing:.1em;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .topbar .live::before{animation:none;}
+    li.hit{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar mono">
+    <span class="live">Index Online</span>
+    <span class="sep"></span>
+    <span>MAG · Code of Points</span>
+  </div>
+
+  <header>
+    <p class="eyebrow">MAG CoP</p>
+    <h1>体操競技男子 <span class="slash">/</span> 採点規則検索</h1>
+    <p class="sub">全PDFの本文を端末内で横断検索。ヒット箇所・ファイル・該当ページを即時表示。</p>
+    <nav class="nav">
+      <a class="here">検索</a>
+      <a href="pdf-list.html" target="_blank" rel="noopener">PDF一覧</a>
+    </nav>
+  </header>
+
+  <div class="search-zone">
+    <div class="field">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" id="q" placeholder="キーワードを入力（例：減点、加点、あん馬）" autocomplete="off" autofocus>
+    </div>
+    <div class="meta-row mono">
+      <span class="count" id="count"></span>
+      <span class="scope" id="scope"></span>
+    </div>
+  </div>
+
+  <ul class="results" id="results"></ul>
+
+  <footer>
+    収録 <span id="docCount"></span> PDF · 検索は端末内で完結し外部送信なし · ヒット行から該当ページへ直接ジャンプ
+  </footer>
+</div>
+
+<script>
+/* index.json を読み込んで検索する。
+   build_index.py が生成した index.json を、このHTMLと同じフォルダに置く。
+   ※ file:// 直開きは CORS 制限で fetch が失敗する。
+     ローカル確認は `python3 -m http.server` 経由、本番は GitHub Pages で。 */
+let INDEX = [];
+const elQ=document.getElementById('q'),
+      elR=document.getElementById('results'),
+      elC=document.getElementById('count'),
+      elS=document.getElementById('scope'),
+      elDoc=document.getElementById('docCount');
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function tokens(q){return q.trim().split(/[\s　]+/).filter(Boolean);}
+function highlight(text, terms){
+  let html = esc(text);
+  for(const t of terms){
+    const re = new RegExp(esc(t).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+    html = html.replace(re, m=>`<mark>${m}</mark>`);
+  }
+  return html;
+}
+function search(q){
+  const terms = tokens(q);
+  if(terms.length===0){ render([],terms); return; }
+  const hits = INDEX.filter(r => terms.every(t => r.text.includes(t) || r.file.includes(t)));
+  render(hits, terms);
+}
+function splitExt(name){const i=name.lastIndexOf('.');return i<0?[name,'']:[name.slice(0,i),name.slice(i)];}
+function render(hits, terms){
+  if(terms.length===0){
+    elR.innerHTML=`<div class="empty mono"><div class="big">— · —</div>キーワードを入力すると全PDF本文を<span class="accent"> 横断検索 </span>します</div>`;
+    elC.innerHTML=''; elS.textContent=''; return;
+  }
+  elC.innerHTML = `<strong>${hits.length}</strong> 件ヒット`;
+  elS.textContent = `「${terms.join(' / ')}」`;
+  if(hits.length===0){
+    elR.innerHTML=`<div class="empty mono"><div class="big">NO DATA</div>該当なし — 表記ゆれ（漢字／かな）や別語を試してください</div>`;
+    return;
+  }
+  elR.innerHTML = hits.map(h=>{
+    const [base,ext]=splitExt(h.file);
+    return `
+    <li class="hit">
+      <div class="page-cell">
+        <span class="lab">PAGE</span>
+        <span class="num">${String(h.page).padStart(2,'0')}</span>
+      </div>
+      <div class="hit-body">
+        <p class="filename mono"><a href="${esc(h.file)}#page=${h.page}" target="_blank" rel="noopener">${esc(base)}<span class="ext">${esc(ext)}</span></a></p>
+        <p class="snippet">${highlight(h.text, terms)}</p>
+      </div>
+    </li>`;}).join('');
+}
+let timer;
+elQ.addEventListener('input', e=>{clearTimeout(timer);timer=setTimeout(()=>search(e.target.value),110);});
+
+// 初期表示（読み込み中）
+elQ.disabled = true;
+elR.innerHTML = `<div class="empty mono"><div class="big">· · ·</div>インデックスを読み込み中…</div>`;
+
+// index.json を読み込む
+fetch('index.json')
+  .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(data=>{
+    INDEX = data;
+    elDoc.textContent = new Set(INDEX.map(r=>r.file)).size;
+    elQ.disabled = false;
+    render([],[]);          // 入力待ちの案内表示へ
+    elQ.focus();
+  })
+  .catch(err=>{
+    elR.innerHTML = `<div class="empty mono"><div class="big">LOAD ERROR</div>`+
+      `index.json を読み込めません（${esc(String(err.message))}）<br>`+
+      `<span class="accent">file:// 直開きは不可</span> — python3 -m http.server か GitHub Pages で開いてください</div>`;
+  });
+
+</script>
+</body>
+</html>

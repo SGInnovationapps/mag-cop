@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAG CoP — PDF一覧</title>
+<style>
+  :root{
+    --bg:#0a0b0d;
+    --panel:#121419;
+    --panel-2:#171a21;
+    --line:#23262f;
+    --line-bright:#333744;
+    --txt:#e8eaed;
+    --txt-dim:#7d8290;
+    --txt-faint:#4d525e;
+    --green:#00e676;
+    --purple:#b388ff;
+    --yellow:#ffd400;
+    --yellow-dim:rgba(255,212,0,.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);color:var(--txt);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px 100px;}
+
+  .topbar{
+    display:flex;align-items:center;gap:18px;
+    border-bottom:1px solid var(--line);padding:14px 0;
+    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.18em;
+    color:var(--txt-dim);text-transform:uppercase;
+  }
+  .topbar .live{display:flex;align-items:center;gap:7px;color:var(--green);}
+  .topbar .live::before{content:"";width:7px;height:7px;border-radius:50%;
+    background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+  .topbar .sep{flex:1;height:1px;background:var(--line);}
+
+  header{padding:30px 0 22px;}
+  .eyebrow{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.42em;
+    color:var(--purple);text-transform:uppercase;margin:0 0 12px;}
+  h1{font-size:38px;font-weight:800;margin:0;letter-spacing:.01em;line-height:1.1;}
+  h1 .slash{color:var(--yellow);font-weight:400;}
+  .sub{color:var(--txt-dim);font-size:13px;margin:10px 0 0;letter-spacing:.04em;}
+
+  .nav{display:flex;gap:0;margin-top:22px;border-bottom:1px solid var(--line);}
+  .nav a{font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;text-decoration:none;color:var(--txt-dim);
+    padding:11px 20px;border-bottom:2px solid transparent;margin-bottom:-1px;
+    transition:color .15s,border-color .15s,background .15s;}
+  .nav a:hover{color:var(--txt);background:var(--panel);}
+  .nav a.here{color:var(--bg);background:var(--green);border-bottom-color:var(--green);font-weight:700;}
+
+  /* apparatus grid */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:26px;}
+  .app{background:var(--panel);border:1px solid var(--line);border-radius:4px;
+    overflow:hidden;display:flex;flex-direction:column;}
+  .app-head{display:flex;align-items:center;gap:12px;padding:13px 15px;
+    border-bottom:1px solid var(--line);background:var(--panel-2);}
+  .pos{font-family:ui-monospace,monospace;font-weight:700;font-size:13px;
+    color:var(--bg);background:var(--purple);width:26px;height:26px;flex:0 0 26px;
+    display:flex;align-items:center;justify-content:center;border-radius:2px;}
+  .app-name{font-size:18px;font-weight:700;letter-spacing:.04em;margin:0;}
+  .app-en{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.18em;
+    color:var(--txt-faint);text-transform:uppercase;margin-left:auto;}
+
+  ul.docs{list-style:none;margin:0;padding:0;flex:1;}
+  li.doc{border-bottom:1px solid var(--line);}
+  li.doc:last-child{border-bottom:none;}
+  li.doc a{display:grid;grid-template-columns:20px 1fr auto;gap:11px;align-items:center;
+    padding:12px 15px;text-decoration:none;color:var(--txt);
+    transition:background .12s,padding-left .12s;}
+  li.doc a:hover{background:var(--panel-2);padding-left:21px;}
+  .doc-ic{width:15px;height:18px;stroke:var(--green);fill:none;}
+  .doc-title{font-size:14px;min-width:0;line-height:1.4;}
+  .doc-sub{font-family:ui-monospace,monospace;font-size:10px;color:var(--txt-faint);
+    display:block;margin-top:2px;letter-spacing:.06em;}
+  .doc-go{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.12em;
+    color:var(--txt-faint);white-space:nowrap;}
+  li.doc a:hover .doc-go{color:var(--yellow);}
+  li.doc a:hover .doc-ic{stroke:var(--yellow);}
+  .empty-note{font-family:ui-monospace,monospace;font-size:11px;color:var(--txt-faint);
+    padding:14px 15px;letter-spacing:.06em;}
+
+  footer{margin-top:36px;border-top:1px solid var(--line);padding-top:18px;
+    font-family:ui-monospace,monospace;font-size:11px;color:var(--txt-faint);
+    letter-spacing:.06em;line-height:1.9;}
+
+  @media(max-width:720px){.grid{grid-template-columns:1fr;}}
+  @media(max-width:560px){
+    h1{font-size:28px;}
+    .topbar{gap:10px;font-size:10px;flex-wrap:wrap;}
+    .nav a{padding:11px 13px;letter-spacing:.1em;}
+    .app-en{display:none;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .topbar .live::before{animation:none;}
+    li.doc a{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar mono">
+    <span class="live">Library Online</span>
+    <span class="sep"></span>
+    <span>6 Apparatus · MAG</span>
+  </div>
+
+  <header>
+    <p class="eyebrow">MAG CoP</p>
+    <h1>体操競技男子 <span class="slash">/</span> PDF一覧</h1>
+    <p class="sub">種目別の採点規則PDF。各項目をクリックすると別タブで開きます。</p>
+    <nav class="nav">
+      <a href="saiten-search.html" target="_blank" rel="noopener">検索</a>
+      <a class="here">PDF一覧</a>
+    </nav>
+  </header>
+
+  <div class="grid" id="library"></div>
+
+  <footer>
+    種目ごとに分割したPDFを開く運用 · 差し替えは pdf-list.html の APPARATUS / GENERAL を編集 · PDFは pdfs/ に配置
+  </footer>
+</div>
+
+<script>
+/* 種目ごとに分割した独立PDFを開く運用。
+   file はこのHTMLからの相対パス。差し替えはこの配列を編集するだけ。 */
+const APPARATUS = [
+  {name:"ゆか", en:"Floor", docs:[
+    {title:"ゆか 採点規則", sub:"第10章 · CoP 2025", file:"pdfs/FX_CoP_2025.pdf"},
+  ]},
+  {name:"あん馬", en:"Pommel", docs:[
+    {title:"あん馬 採点規則", sub:"第11章 · CoP 2025", file:"pdfs/PH_CoP_2025.pdf"},
+  ]},
+  {name:"つり輪", en:"Rings", docs:[
+    {title:"つり輪 採点規則", sub:"第12章 · CoP 2025", file:"pdfs/SR_CoP_2025.pdf"},
+  ]},
+  {name:"跳馬", en:"Vault", docs:[
+    {title:"跳馬 採点規則", sub:"第13章 · CoP 2025", file:"pdfs/VT_CoP_2025.pdf"},
+  ]},
+  {name:"平行棒", en:"P-Bars", docs:[
+    {title:"平行棒 採点規則", sub:"第14章 · CoP 2025", file:"pdfs/PB_CoP_2025.pdf"},
+  ]},
+  {name:"鉄棒", en:"High Bar", docs:[
+    {title:"鉄棒 採点規則", sub:"第15章 · CoP 2025", file:"pdfs/HB_CoP_2025.pdf"},
+  ]},
+];
+
+// 種目章以外の主要セクション（先頭に表示）
+const GENERAL = [
+  {name:"一般・実施", en:"General", docs:[
+    {title:"競技参加者規則・演技の評価", sub:"第1〜9章", file:"pdfs/GEN_CoP_2025.pdf"},
+    {title:"補足説明および解釈", sub:"第4部 補足", file:"pdfs/SUP_CoP_2025.pdf"},
+  ]},
+];
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+const fileIcon=`<svg class="doc-ic" viewBox="0 0 24 24" stroke-width="1.6" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/></svg>`;
+
+// d.page があれば PDF#page=N、d.file があればそのまま（将来の分割運用にも対応）
+function hrefFor(d){
+  if(d.page) return `${esc(PDF)}#page=${d.page}`;
+  if(d.file) return esc(d.file);
+  return esc(PDF);
+}
+function renderSection(a, label){
+  const items=a.docs.length
+    ? a.docs.map(d=>`
+        <li class="doc"><a href="${hrefFor(d)}" target="_blank" rel="noopener">
+          ${fileIcon}
+          <span class="doc-title">${esc(d.title)}<span class="doc-sub">${esc(d.sub||'')}</span></span>
+          <span class="doc-go">OPEN ↗</span>
+        </a></li>`).join('')
+    : `<div class="empty-note">NO FILE</div>`;
+  return `
+    <section class="app">
+      <div class="app-head">
+        <span class="pos mono">${label}</span>
+        <h2 class="app-name">${esc(a.name)}</h2>
+        <span class="app-en">${esc(a.en)}</span>
+      </div>
+      <ul class="docs">${items}</ul>
+    </section>`;
+}
+
+document.getElementById('library').innerHTML =
+  GENERAL.map(a=>renderSection(a,'§')).join('') +
+  APPARATUS.map((a,i)=>renderSection(a,String(i+1).padStart(2,'0'))).join('');
+
+</script>
+</body>
+</html>
