@@ -53,9 +53,7 @@
   .topbar .live{display:flex;align-items:center;gap:7px;color:var(--green);}
   .topbar .live::before{
     content:"";width:7px;height:7px;border-radius:50%;background:var(--green);
-    box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;
   }
-  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
   .topbar .sep{flex:1;height:1px;background:var(--line);}
 
   /* ===== header ===== */
@@ -68,6 +66,7 @@
   h1{
     font-size:38px;font-weight:800;margin:0;letter-spacing:.01em;line-height:1.1;
   }
+  h1 .h1-small{font-size:17px;font-weight:600;color:var(--txt-dim);letter-spacing:.06em;}
   h1 .slash{color:var(--yellow);font-weight:400;}
   .sub{color:var(--txt-dim);font-size:13px;margin:10px 0 0;letter-spacing:.04em;}
 
@@ -169,7 +168,6 @@
     .nav a{padding:11px 13px;letter-spacing:.1em;}
   }
   @media(prefers-reduced-motion:reduce){
-    .topbar .live::before{animation:none;}
     li.hit{transition:none;}
   }
 </style>
@@ -185,12 +183,11 @@
 
   <header>
     <p class="eyebrow">MAG CoP</p>
-    <h1>体操競技男子 <span class="slash">/</span> 採点規則検索</h1>
-    <p class="sub">全PDFの本文を端末内で横断検索。ヒット箇所・ファイル・該当ページを即時表示。</p>
+    <h1><span class="h1-small">体操競技男子</span> <span class="slash">/</span> 採点規則検索</h1>
     <nav class="nav">
       <a class="here">検索</a>
-      <a href="pdf-list.html" target="_blank" rel="noopener">PDF一覧</a>
-      <a href="videos.html" target="_blank" rel="noopener">動画</a>
+      <a href="pdf-list.html">PDF一覧</a>
+      <a href="videos.html">動画</a>
     </nav>
   </header>
 
@@ -268,8 +265,7 @@ function hitHTML(h, terms){
     </li>`;
 }
 function emptyGuide(){
-  const label = SCOPE==='jp' ? '国内ルール' : SCOPE==='both' ? '国際＋国内' : '国際ルール';
-  elR.innerHTML=`<div class="empty mono"><div class="big">— · —</div>キーワードを入力すると ${label} のPDF本文を<span class="accent"> 横断検索 </span>します</div>`;
+  elR.innerHTML='';
   elC.innerHTML=''; elS.textContent='';
 }
 function render(hits, terms){
