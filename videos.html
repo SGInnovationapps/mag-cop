@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAG CoP — 動画一覧</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1419">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MAG CoP">
+<script src="pwa.js" defer></script>
+
+<style>
+  :root{
+    --bg:#0f1419;
+    --panel:#161c23;
+    --panel-2:#1a222b;
+    --line:#28323d;
+    --line-bright:#37444f;
+    --txt:#d8d8d8;
+    --txt-dim:#7a8794;
+    --txt-faint:#4d5a66;
+    --green:#5a9e9f;
+    --purple:#8b7fb8;
+    --yellow:#b8956a;
+    --yellow-dim:rgba(184,149,106,.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);color:var(--txt);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:ui-monospace,"SF Mono","Roboto Mono",Menlo,Consolas,monospace;}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px 100px;}
+
+  .topbar{
+    display:flex;align-items:center;gap:18px;
+    border-bottom:1px solid var(--line);padding:14px 0;
+    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.18em;
+    color:var(--txt-dim);text-transform:uppercase;
+  }
+  .topbar .live{display:flex;align-items:center;gap:7px;color:var(--green);}
+  .topbar .live::before{content:"";width:7px;height:7px;border-radius:50%;
+    background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.4s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+  .topbar .sep{flex:1;height:1px;background:var(--line);}
+
+  header{padding:30px 0 22px;}
+  .eyebrow{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.42em;
+    color:var(--purple);text-transform:uppercase;margin:0 0 12px;}
+  h1{font-size:38px;font-weight:800;margin:0;letter-spacing:.01em;line-height:1.1;}
+  h1 .slash{color:var(--yellow);font-weight:400;}
+  .sub{color:var(--txt-dim);font-size:13px;margin:10px 0 0;letter-spacing:.04em;}
+
+  .nav{display:flex;gap:0;margin-top:22px;border-bottom:1px solid var(--line);}
+  .nav a{font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;text-decoration:none;color:var(--txt-dim);
+    padding:11px 20px;border-bottom:2px solid transparent;margin-bottom:-1px;
+    transition:color .15s,border-color .15s,background .15s;}
+  .nav a:hover{color:var(--txt);background:var(--panel);}
+  .nav a.here{color:var(--bg);background:var(--green);border-bottom-color:var(--green);font-weight:700;}
+
+  /* ===== apparatus group ===== */
+  .group-head{
+    display:flex;align-items:center;gap:12px;
+    margin:34px 0 14px;font-family:ui-monospace,monospace;
+    font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--purple);
+  }
+  .group-head .cnt{color:var(--txt-faint);letter-spacing:.1em;}
+  .group-head::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:760px){.vgrid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:480px){.vgrid{grid-template-columns:1fr;}}
+
+  .vcard{
+    background:var(--panel);border:1px solid var(--line);border-radius:4px;
+    overflow:hidden;text-decoration:none;color:var(--txt);
+    display:flex;flex-direction:column;
+    transition:border-color .15s,transform .12s;
+  }
+  .vcard:hover{border-color:var(--yellow);transform:translateY(-2px);}
+  .thumb{position:relative;aspect-ratio:16/9;background:var(--panel-2);overflow:hidden;}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .thumb .play{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    opacity:0;transition:opacity .15s;background:rgba(15,20,25,.45);
+  }
+  .vcard:hover .play{opacity:1;}
+  .thumb .play span{
+    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.2em;
+    color:var(--bg);background:var(--yellow);padding:7px 14px;border-radius:3px;font-weight:700;
+  }
+  .vmeta{padding:10px 12px 12px;display:flex;flex-direction:column;gap:5px;}
+  .vno{font-family:ui-monospace,monospace;font-size:11px;color:var(--green);letter-spacing:.1em;}
+  .vsrc{font-family:ui-monospace,monospace;font-size:10px;color:var(--txt-faint);letter-spacing:.05em;}
+  .vsrc a{color:var(--txt-dim);text-decoration:none;}
+  .vsrc a:hover{color:var(--yellow);text-decoration:underline;}
+
+  .loading,.err{padding:70px 20px;text-align:center;color:var(--txt-dim);
+    font-family:ui-monospace,monospace;font-size:13px;letter-spacing:.08em;}
+  .loading .big,.err .big{font-size:30px;color:var(--line-bright);margin-bottom:16px;letter-spacing:.3em;}
+  .err .accent{color:var(--purple);}
+
+  footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;
+    font-family:ui-monospace,monospace;font-size:11px;color:var(--txt-faint);
+    letter-spacing:.06em;line-height:1.9;}
+
+  @media(max-width:560px){
+    h1{font-size:28px;}
+    .topbar{gap:10px;font-size:10px;flex-wrap:wrap;}
+    .nav a{padding:11px 13px;letter-spacing:.1em;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .topbar .live::before{animation:none;}
+    .vcard{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar mono">
+    <span class="live">Video Index</span>
+    <span class="sep"></span>
+    <span>情報33号 · MAG</span>
+  </div>
+
+  <header>
+    <p class="eyebrow">MAG CoP</p>
+    <h1>体操競技男子 <span class="slash">/</span> 動画一覧</h1>
+    <p class="sub">男子体操競技情報33号に掲載された解説動画（YouTube）。カードをクリックで再生、出典から該当PDFページを開けます。</p>
+    <nav class="nav">
+      <a href="saiten-search.html" target="_blank" rel="noopener">検索</a>
+      <a href="pdf-list.html" target="_blank" rel="noopener">PDF一覧</a>
+      <a class="here">動画</a>
+    </nav>
+  </header>
+
+  <div id="list"><div class="loading mono"><div class="big">· · ·</div>動画リストを読み込み中…</div></div>
+
+  <footer>
+    収録 <span id="vidCount"></span> 本 · 出典：男子体操競技情報33号（日本体操協会） · リストの更新は videos_info33.json を差し替え
+  </footer>
+</div>
+
+<script>
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function ytid(url){
+  const m = url.match(/[?&]v=([\w-]{6,})/) || url.match(/youtu\.be\/([\w-]{6,})/);
+  return m ? m[1] : null;
+}
+const ORDER = ['ゆか','あん馬','つり輪','跳馬','平行棒','鉄棒',
+               '採点規則修正・追加情報','タイ・ブレイク','2026年度国内内規','マナー・モラル'];
+
+fetch('videos_info33.json')
+  .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(videos=>{
+    document.getElementById('vidCount').textContent = videos.length;
+    // group by apparatus, keep ORDER
+    const groups = new Map();
+    for(const v of videos){
+      if(!groups.has(v.apparatus)) groups.set(v.apparatus, []);
+      groups.get(v.apparatus).push(v);
+    }
+    const keys = [...groups.keys()].sort((a,b)=>{
+      const ia=ORDER.indexOf(a), ib=ORDER.indexOf(b);
+      return (ia<0?99:ia)-(ib<0?99:ib);
+    });
+    let html='';
+    for(const k of keys){
+      const vs = groups.get(k);
+      html += `<div class="group-head mono">${esc(k)} <span class="cnt">— ${vs.length}本</span></div>`;
+      html += `<div class="vgrid">` + vs.map((v,i)=>{
+        const id = ytid(v.url);
+        const thumb = id ? `<img src="https://img.youtube.com/vi/${esc(id)}/mqdefault.jpg" alt="" loading="lazy">` : '';
+        return `
+        <a class="vcard" href="${esc(v.url)}" target="_blank" rel="noopener">
+          <div class="thumb">${thumb}<div class="play"><span>▶ PLAY</span></div></div>
+          <div class="vmeta">
+            <span class="vno mono">${esc(k)} · 動画 ${String(i+1).padStart(2,'0')}</span>
+            <span class="vsrc mono">出典:
+              <a href="${esc(v.file)}#page=${v.page}" target="_blank" rel="noopener"
+                 onclick="event.stopPropagation()">${esc(v.file.split('/').pop())} p.${v.page}</a>
+            </span>
+          </div>
+        </a>`;
+      }).join('') + `</div>`;
+    }
+    document.getElementById('list').innerHTML = html;
+  })
+  .catch(err=>{
+    document.getElementById('list').innerHTML =
+      `<div class="err mono"><div class="big">LOAD ERROR</div>`+
+      `videos_info33.json を読み込めません（${esc(String(err.message))}）<br>`+
+      `<span class="accent">file:// 直開きは不可</span> — python3 -m http.server か GitHub Pages で開いてください</div>`;
+  });
+</script>
+</body>
+</html>

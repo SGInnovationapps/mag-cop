@@ -4,20 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MAG CoP — PDF一覧</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1419">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MAG CoP">
+<script src="pwa.js" defer></script>
+
 <style>
   :root{
-    --bg:#0a0b0d;
-    --panel:#121419;
-    --panel-2:#171a21;
-    --line:#23262f;
-    --line-bright:#333744;
-    --txt:#e8eaed;
-    --txt-dim:#7d8290;
-    --txt-faint:#4d525e;
-    --green:#00e676;
-    --purple:#b388ff;
-    --yellow:#ffd400;
-    --yellow-dim:rgba(255,212,0,.16);
+    --bg:#0f1419;
+    --panel:#161c23;
+    --panel-2:#1a222b;
+    --line:#28323d;
+    --line-bright:#37444f;
+    --txt:#d8d8d8;
+    --txt-dim:#7a8794;
+    --txt-faint:#4d5a66;
+    --green:#5a9e9f;
+    --purple:#8b7fb8;
+    --yellow:#b8956a;
+    --yellow-dim:rgba(184,149,106,.16);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -57,6 +66,12 @@
 
   /* apparatus grid */
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:26px;}
+  .lib-divider{
+    grid-column:1 / -1;display:flex;align-items:center;gap:12px;
+    margin-top:10px;font-family:ui-monospace,monospace;
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--purple);
+  }
+  .lib-divider::after{content:"";flex:1;height:1px;background:var(--line);}
   .app{background:var(--panel);border:1px solid var(--line);border-radius:4px;
     overflow:hidden;display:flex;flex-direction:column;}
   .app-head{display:flex;align-items:center;gap:12px;padding:13px 15px;
@@ -109,7 +124,7 @@
   <div class="topbar mono">
     <span class="live">Library Online</span>
     <span class="sep"></span>
-    <span>6 Apparatus · MAG</span>
+    <span>国際 + 国内 · MAG</span>
   </div>
 
   <header>
@@ -119,6 +134,7 @@
     <nav class="nav">
       <a href="saiten-search.html" target="_blank" rel="noopener">検索</a>
       <a class="here">PDF一覧</a>
+      <a href="videos.html" target="_blank" rel="noopener">動画</a>
     </nav>
   </header>
 
@@ -161,6 +177,32 @@ const GENERAL = [
   ]},
 ];
 
+/* ===== 国内ルール（日本体操協会 適用規則ほか） ===== */
+const DOMESTIC = [
+  {name:"年代別 適用規則", en:"Age Group", docs:[
+    {title:"U-12 男子適用規則", sub:"2025年版", file:"pdfs_jp/JP_U12_rules_2025.pdf"},
+    {title:"U-12 跳馬価値点一覧表", sub:"2025年版", file:"pdfs_jp/JP_U12_VT_values_2025.pdf"},
+    {title:"U-15 男子適用規則", sub:"2025年版（2025.01更新）", file:"pdfs_jp/JP_U15_rules_2025.pdf"},
+    {title:"U-15 跳馬価値点一覧表", sub:"2025年版", file:"pdfs_jp/JP_U15_VT_values_2025.pdf"},
+    {title:"高等学校男子適用規則", sub:"2026年版", file:"pdfs_jp/JP_HS_rules_2026.pdf"},
+    {title:"マスターズ適用規則", sub:"2025年4月更新版", file:"pdfs_jp/JP_Masters_rules_2025.pdf"},
+  ]},
+  {name:"情報33号 · 規則修正", en:"Info 33", docs:[
+    {title:"採点規則修正・追加情報", sub:"FIG NL反映 2025年版", file:"pdfs_jp/JP_Info33_01_kaitei.pdf"},
+    {title:"タイ・ブレイクについて", sub:"FIG TR 2026 抜粋", file:"pdfs_jp/JP_Info33_08_tiebreak.pdf"},
+    {title:"2026年度 国内内規", sub:"国内対応", file:"pdfs_jp/JP_Info33_09_naiki.pdf"},
+    {title:"マナー・モラルについて", sub:"競技会運営", file:"pdfs_jp/JP_Info33_10_manner.pdf"},
+  ]},
+  {name:"情報33号 · 種目別確認事項", en:"Info 33 / Apparatus", docs:[
+    {title:"ゆか 確認事項・FIG通達", sub:"動画リンクあり", file:"pdfs_jp/JP_Info33_02_FX.pdf"},
+    {title:"あん馬 確認事項・FIG通達", sub:"動画リンクあり", file:"pdfs_jp/JP_Info33_03_PH.pdf"},
+    {title:"つり輪 確認事項・FIG通達", sub:"動画リンクあり", file:"pdfs_jp/JP_Info33_04_SR.pdf"},
+    {title:"跳馬 確認事項", sub:"", file:"pdfs_jp/JP_Info33_05_VT.pdf"},
+    {title:"平行棒 確認事項・FIG通達", sub:"動画リンクあり", file:"pdfs_jp/JP_Info33_06_PB.pdf"},
+    {title:"鉄棒 確認事項・FIG通達", sub:"動画リンクあり", file:"pdfs_jp/JP_Info33_07_HB.pdf"},
+  ]},
+];
+
 function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 const fileIcon=`<svg class="doc-ic" viewBox="0 0 24 24" stroke-width="1.6" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/></svg>`;
 
@@ -191,8 +233,11 @@ function renderSection(a, label){
 }
 
 document.getElementById('library').innerHTML =
+  `<div class="lib-divider mono">国際ルール — FIG CoP 2025</div>` +
   GENERAL.map(a=>renderSection(a,'§')).join('') +
-  APPARATUS.map((a,i)=>renderSection(a,String(i+1).padStart(2,'0'))).join('');
+  APPARATUS.map((a,i)=>renderSection(a,String(i+1).padStart(2,'0'))).join('') +
+  `<div class="lib-divider mono">国内ルール — 日本体操協会</div>` +
+  DOMESTIC.map(a=>renderSection(a,'JP')).join('');
 
 </script>
 </body>

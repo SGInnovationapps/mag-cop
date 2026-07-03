@@ -4,22 +4,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MAG CoP — 採点規則検索</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1419">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MAG CoP">
+<script src="pwa.js" defer></script>
+
 <style>
   :root{
-    --bg:#0a0b0d;
-    --panel:#121419;
-    --panel-2:#171a21;
-    --line:#23262f;
-    --line-bright:#333744;
-    --txt:#e8eaed;
-    --txt-dim:#7d8290;
-    --txt-faint:#4d525e;
-    --green:#00e676;     /* 改善・自己ベスト */
-    --purple:#b388ff;    /* セッションベスト・最速 */
-    --yellow:#ffd400;    /* 注意・ヒット強調 */
-    --green-dim:rgba(0,230,118,.14);
-    --purple-dim:rgba(179,136,255,.16);
-    --yellow-dim:rgba(255,212,0,.16);
+    --bg:#0f1419;
+    --panel:#161c23;
+    --panel-2:#1a222b;
+    --line:#28323d;
+    --line-bright:#37444f;
+    --txt:#d8d8d8;
+    --txt-dim:#7a8794;
+    --txt-faint:#4d5a66;
+    --green:#5a9e9f;     /* 青緑 */
+    --purple:#8b7fb8;    /* 紫 */
+    --yellow:#b8956a;    /* くすんだベージュ */
+    --green-dim:rgba(90,158,159,.14);
+    --purple-dim:rgba(139,127,184,.16);
+    --yellow-dim:rgba(184,149,106,.16);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -95,6 +104,30 @@
   .count strong{color:var(--green);font-size:13px;}
   .scope{color:var(--purple);}
 
+  /* ===== scope tabs (国際/国内/両方) ===== */
+  .scope-tabs{display:flex;gap:8px;margin-top:14px;}
+  .scope-tabs button{
+    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;cursor:pointer;
+    padding:7px 16px;border-radius:3px;
+    border:1px solid var(--line-bright);
+    background:var(--panel);color:var(--txt-dim);
+    transition:color .15s,border-color .15s,background .15s;
+  }
+  .scope-tabs button:hover{color:var(--txt);border-color:var(--yellow);}
+  .scope-tabs button.on{
+    background:var(--green);color:var(--bg);
+    border-color:var(--green);font-weight:700;
+  }
+
+  /* ===== group heading for 両方検索 ===== */
+  .group-head{
+    display:flex;align-items:center;gap:10px;
+    margin:22px 0 10px;font-family:ui-monospace,monospace;
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--purple);
+  }
+  .group-head::after{content:"";flex:1;height:1px;background:var(--line);}
+
   /* ===== results ===== */
   ul.results{list-style:none;margin:18px 0 0;padding:0;}
   li.hit{
@@ -117,8 +150,8 @@
   .filename a{color:var(--green);text-decoration:none;}
   .filename a:hover{color:var(--yellow);text-decoration:underline;}
   .filename .ext{color:var(--txt-faint);}
-  .snippet{font-size:14px;color:#c7cad2;margin:0;line-height:1.7;}
-  mark{background:var(--yellow);color:#0a0b0d;padding:0 3px;border-radius:2px;font-weight:600;}
+  .snippet{font-size:14px;color:#b8bcc2;margin:0;line-height:1.7;}
+  mark{background:var(--yellow);color:var(--bg);padding:0 3px;border-radius:2px;font-weight:600;}
 
   .empty{padding:70px 20px;text-align:center;color:var(--txt-dim);
     font-family:ui-monospace,monospace;font-size:13px;letter-spacing:.08em;}
@@ -157,6 +190,7 @@
     <nav class="nav">
       <a class="here">検索</a>
       <a href="pdf-list.html" target="_blank" rel="noopener">PDF一覧</a>
+      <a href="videos.html" target="_blank" rel="noopener">動画</a>
     </nav>
   </header>
 
@@ -164,6 +198,11 @@
     <div class="field">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <input type="search" id="q" placeholder="キーワードを入力（例：減点、加点、あん馬）" autocomplete="off" autofocus>
+    </div>
+    <div class="scope-tabs" id="scopeTabs">
+      <button data-scope="intl" class="on">国際ルール</button>
+      <button data-scope="jp">国内ルール</button>
+      <button data-scope="both">両方検索</button>
     </div>
     <div class="meta-row mono">
       <span class="count" id="count"></span>
@@ -179,11 +218,13 @@
 </div>
 
 <script>
-/* index.json を読み込んで検索する。
-   build_index.py が生成した index.json を、このHTMLと同じフォルダに置く。
+/* 国際（index.json）と国内（index_jp.json）の2つのインデックスを読み込み、
+   タブで検索対象を切り替える。
    ※ file:// 直開きは CORS 制限で fetch が失敗する。
      ローカル確認は `python3 -m http.server` 経由、本番は GitHub Pages で。 */
-let INDEX = [];
+let INDEX_INTL = [];   // 国際ルール
+let INDEX_JP   = [];   // 国内ルール
+let SCOPE = 'intl';    // 'intl' | 'jp' | 'both'
 const elQ=document.getElementById('q'),
       elR=document.getElementById('results'),
       elC=document.getElementById('count'),
@@ -203,24 +244,18 @@ function highlight(text, terms){
 function search(q){
   const terms = tokens(q);
   if(terms.length===0){ render([],terms); return; }
-  const hits = INDEX.filter(r => terms.every(t => r.text.includes(t) || r.file.includes(t)));
-  render(hits, terms);
+  const match = r => terms.every(t => r.text.includes(t) || r.file.includes(t));
+  if(SCOPE==='both'){
+    renderBoth(INDEX_INTL.filter(match), INDEX_JP.filter(match), terms);
+  }else{
+    const src = SCOPE==='jp' ? INDEX_JP : INDEX_INTL;
+    render(src.filter(match), terms);
+  }
 }
 function splitExt(name){const i=name.lastIndexOf('.');return i<0?[name,'']:[name.slice(0,i),name.slice(i)];}
-function render(hits, terms){
-  if(terms.length===0){
-    elR.innerHTML=`<div class="empty mono"><div class="big">— · —</div>キーワードを入力すると全PDF本文を<span class="accent"> 横断検索 </span>します</div>`;
-    elC.innerHTML=''; elS.textContent=''; return;
-  }
-  elC.innerHTML = `<strong>${hits.length}</strong> 件ヒット`;
-  elS.textContent = `「${terms.join(' / ')}」`;
-  if(hits.length===0){
-    elR.innerHTML=`<div class="empty mono"><div class="big">NO DATA</div>該当なし — 表記ゆれ（漢字／かな）や別語を試してください</div>`;
-    return;
-  }
-  elR.innerHTML = hits.map(h=>{
-    const [base,ext]=splitExt(h.file);
-    return `
+function hitHTML(h, terms){
+  const [base,ext]=splitExt(h.file);
+  return `
     <li class="hit">
       <div class="page-cell">
         <span class="lab">PAGE</span>
@@ -230,30 +265,77 @@ function render(hits, terms){
         <p class="filename mono"><a href="${esc(h.file)}#page=${h.page}" target="_blank" rel="noopener">${esc(base)}<span class="ext">${esc(ext)}</span></a></p>
         <p class="snippet">${highlight(h.text, terms)}</p>
       </div>
-    </li>`;}).join('');
+    </li>`;
+}
+function emptyGuide(){
+  const label = SCOPE==='jp' ? '国内ルール' : SCOPE==='both' ? '国際＋国内' : '国際ルール';
+  elR.innerHTML=`<div class="empty mono"><div class="big">— · —</div>キーワードを入力すると ${label} のPDF本文を<span class="accent"> 横断検索 </span>します</div>`;
+  elC.innerHTML=''; elS.textContent='';
+}
+function render(hits, terms){
+  if(terms.length===0){ emptyGuide(); return; }
+  elC.innerHTML = `<strong>${hits.length}</strong> 件ヒット`;
+  elS.textContent = `「${terms.join(' / ')}」`;
+  if(hits.length===0){
+    elR.innerHTML=`<div class="empty mono"><div class="big">NO DATA</div>該当なし — 表記ゆれ（漢字／かな）や別語を試してください</div>`;
+    return;
+  }
+  elR.innerHTML = hits.map(h=>hitHTML(h,terms)).join('');
+}
+function renderBoth(intl, jp, terms){
+  if(terms.length===0){ emptyGuide(); return; }
+  elC.innerHTML = `国際 <strong>${intl.length}</strong> 件 / 国内 <strong>${jp.length}</strong> 件`;
+  elS.textContent = `「${terms.join(' / ')}」`;
+  if(intl.length===0 && jp.length===0){
+    elR.innerHTML=`<div class="empty mono"><div class="big">NO DATA</div>該当なし — 表記ゆれ（漢字／かな）や別語を試してください</div>`;
+    return;
+  }
+  let html='';
+  if(intl.length){ html += `<div class="group-head mono">国際ルール — ${intl.length}件</div>` + intl.map(h=>hitHTML(h,terms)).join(''); }
+  if(jp.length){ html += `<div class="group-head mono">国内ルール — ${jp.length}件</div>` + jp.map(h=>hitHTML(h,terms)).join(''); }
+  elR.innerHTML = html;
 }
 let timer;
 elQ.addEventListener('input', e=>{clearTimeout(timer);timer=setTimeout(()=>search(e.target.value),110);});
+
+// ===== scope tabs =====
+document.getElementById('scopeTabs').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  SCOPE = btn.dataset.scope;
+  document.querySelectorAll('#scopeTabs button').forEach(b=>b.classList.toggle('on', b===btn));
+  updateDocCount();
+  search(elQ.value);   // キーワードを保ったまま再検索
+  elQ.focus();
+});
+function updateDocCount(){
+  const files = new Set();
+  if(SCOPE!=='jp')  INDEX_INTL.forEach(r=>files.add(r.file));
+  if(SCOPE!=='intl') INDEX_JP.forEach(r=>files.add(r.file));
+  elDoc.textContent = files.size;
+}
 
 // 初期表示（読み込み中）
 elQ.disabled = true;
 elR.innerHTML = `<div class="empty mono"><div class="big">· · ·</div>インデックスを読み込み中…</div>`;
 
-// index.json を読み込む
-fetch('index.json')
-  .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
-  .then(data=>{
-    INDEX = data;
-    elDoc.textContent = new Set(INDEX.map(r=>r.file)).size;
-    elQ.disabled = false;
-    render([],[]);          // 入力待ちの案内表示へ
-    elQ.focus();
-  })
-  .catch(err=>{
+// 国際・国内の両インデックスを並列で読み込む（片方失敗でも他方は使用可）
+Promise.allSettled([
+  fetch('index.json').then(r=>{ if(!r.ok) throw new Error('index.json: '+r.status); return r.json(); }),
+  fetch('index_jp.json').then(r=>{ if(!r.ok) throw new Error('index_jp.json: '+r.status); return r.json(); }),
+]).then(([intl, jp])=>{
+  if(intl.status==='fulfilled') INDEX_INTL = intl.value;
+  if(jp.status==='fulfilled')   INDEX_JP   = jp.value;
+  if(INDEX_INTL.length===0 && INDEX_JP.length===0){
     elR.innerHTML = `<div class="empty mono"><div class="big">LOAD ERROR</div>`+
-      `index.json を読み込めません（${esc(String(err.message))}）<br>`+
+      `インデックスを読み込めません<br>`+
       `<span class="accent">file:// 直開きは不可</span> — python3 -m http.server か GitHub Pages で開いてください</div>`;
-  });
+    return;
+  }
+  updateDocCount();
+  elQ.disabled = false;
+  emptyGuide();
+  elQ.focus();
+});
 
 </script>
 </body>
