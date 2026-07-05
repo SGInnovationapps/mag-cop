@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAG CoP — 小学生規定演技</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1419">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MAG CoP">
+<script src="pwa.js" defer></script>
+<style>
+  :root{
+    --bg:#0f1419;
+    --panel:#161c23;
+    --panel-2:#1a222b;
+    --line:#28323d;
+    --line-bright:#37444f;
+    --txt:#d8d8d8;
+    --txt-dim:#7a8794;
+    --txt-faint:#4d5a66;
+    --green:#5a9e9f;
+    --purple:#8b7fb8;
+    --yellow:#b8956a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);color:var(--txt);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:ui-monospace,"SF Mono","Roboto Mono",Menlo,Consolas,monospace;}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px 100px;}
+
+  .topbar{
+    display:flex;align-items:center;gap:18px;
+    border-bottom:1px solid var(--line);padding:14px 0;
+    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.18em;
+    color:var(--txt-dim);text-transform:uppercase;
+  }
+  .topbar .live{display:flex;align-items:center;gap:7px;color:var(--green);}
+  .topbar .live::before{content:"";width:7px;height:7px;border-radius:50%;
+    background:var(--green);}
+  .topbar .sep{flex:1;height:1px;background:var(--line);}
+
+  header{padding:30px 0 22px;}
+  .eyebrow{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.42em;
+    color:var(--purple);text-transform:uppercase;margin:0 0 12px;}
+  h1{font-size:38px;font-weight:800;margin:0;letter-spacing:.01em;line-height:1.1;}
+  h1 .h1-small{font-size:17px;font-weight:600;color:var(--txt-dim);letter-spacing:.06em;}
+  h1 .slash{color:var(--yellow);font-weight:400;}
+  .sub{color:var(--txt-dim);font-size:13px;margin:10px 0 0;letter-spacing:.04em;}
+
+  .nav{display:flex;gap:0;margin-top:22px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .nav a{font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;text-decoration:none;color:var(--txt-dim);
+    padding:11px 20px;border-bottom:2px solid transparent;margin-bottom:-1px;
+    transition:color .15s,border-color .15s,background .15s;}
+  .nav a:hover{color:var(--txt);background:var(--panel);}
+  .nav a.here{color:var(--bg);background:var(--green);border-bottom-color:var(--green);font-weight:700;}
+
+  /* 総則リンク */
+  .general-link{
+    display:flex;align-items:center;gap:12px;margin-top:26px;
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--yellow);
+    border-radius:3px;padding:13px 16px;text-decoration:none;color:var(--txt);
+    transition:border-color .15s;
+  }
+  .general-link:hover{border-color:var(--yellow);}
+  .general-link .t{font-size:14px;font-weight:700;}
+  .general-link .s{font-family:ui-monospace,monospace;font-size:10px;color:var(--txt-faint);
+    display:block;letter-spacing:.06em;margin-top:2px;}
+  .general-link .go{margin-left:auto;font-family:ui-monospace,monospace;font-size:10px;
+    letter-spacing:.12em;color:var(--txt-faint);white-space:nowrap;}
+  .general-link:hover .go{color:var(--yellow);}
+
+  /* 種目セクション */
+  .app-sec{margin-top:34px;}
+  .app-head{display:flex;align-items:center;gap:12px;margin:0 0 12px;}
+  .pos{font-family:ui-monospace,monospace;font-weight:700;font-size:13px;
+    color:var(--bg);background:var(--purple);width:26px;height:26px;flex:0 0 26px;
+    display:flex;align-items:center;justify-content:center;border-radius:2px;}
+  .app-name{font-size:19px;font-weight:700;letter-spacing:.04em;margin:0;}
+  .app-head::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  .app-body{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:start;}
+  @media(max-width:720px){.app-body{grid-template-columns:1fr;}}
+
+  .vbox{background:var(--panel);border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+  .vbox video{display:block;width:100%;aspect-ratio:16/9;background:#000;}
+  .vbox .vtitle{padding:10px 13px;font-family:ui-monospace,monospace;font-size:11px;
+    color:var(--txt-dim);letter-spacing:.05em;}
+  .vmissing{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+    color:var(--txt-faint);font-family:ui-monospace,monospace;font-size:12px;
+    letter-spacing:.1em;background:var(--panel-2);}
+
+  .pdfcard{background:var(--panel);border:1px solid var(--line);border-radius:4px;}
+  .pdfcard a{display:grid;grid-template-columns:20px 1fr auto;gap:11px;align-items:center;
+    padding:13px 15px;text-decoration:none;color:var(--txt);transition:background .12s;}
+  .pdfcard a:hover{background:var(--panel-2);}
+  .doc-ic{width:15px;height:18px;stroke:var(--green);fill:none;}
+  .pdfcard a:hover .doc-ic{stroke:var(--yellow);}
+  .doc-title{font-size:13px;min-width:0;line-height:1.4;}
+  .doc-sub{font-family:ui-monospace,monospace;font-size:10px;color:var(--txt-faint);
+    display:block;margin-top:2px;letter-spacing:.06em;}
+  .doc-go{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.12em;
+    color:var(--txt-faint);white-space:nowrap;}
+  .pdfcard a:hover .doc-go{color:var(--yellow);}
+
+  footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;
+    font-family:ui-monospace,monospace;font-size:11px;color:var(--txt-faint);
+    letter-spacing:.06em;line-height:1.9;}
+
+  @media(max-width:560px){
+    h1{font-size:28px;}
+    .topbar{gap:10px;font-size:10px;flex-wrap:wrap;}
+    .nav a{padding:11px 13px;letter-spacing:.1em;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar mono">
+    <span class="live">Compulsory 2022</span>
+    <span class="sep"></span>
+    <span>小学生適用 · MAG</span>
+  </div>
+
+  <header>
+    <p class="eyebrow">MAG CoP</p>
+    <h1><span class="h1-small">体操競技男子</span> <span class="slash">/</span> 小学生規定演技</h1>
+    <p class="sub">2022年度版 小学生適用（日本体操協会）。種目ごとの規則PDFと参考動画。</p>
+    <nav class="nav">
+      <a href="saiten-search.html">検索</a>
+      <a href="pdf-list.html">PDF一覧</a>
+      <a href="videos.html">動画</a>
+      <a class="here">小学生規定演技</a>
+    </nav>
+  </header>
+
+  <a class="general-link" href="pdfs_jp/JP_Kitei2022_00_general.pdf" target="_blank" rel="noopener">
+    <div>
+      <span class="t">総則 — 演技の採点・器械器具の寸度</span>
+      <span class="s">改定のねらい・発刊によせて を含む</span>
+    </div>
+    <span class="go mono">OPEN ↗</span>
+  </a>
+
+  <div id="sections"></div>
+
+  <footer>
+    出典：体操競技男子 ジュニア規定演技 2022年度版 小学生適用（公益財団法人 日本体操協会） · 動画の差し替えは videos_local/ 内のファイルを更新
+  </footer>
+</div>
+
+<script>
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+const fileIcon=`<svg class="doc-ic" viewBox="0 0 24 24" stroke-width="1.6" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/></svg>`;
+
+/* 種目 → PDF・動画。動画は videos_local/ に置いたMP4を参照。
+   ファイルを差し替えるだけで更新できる。 */
+const APPARATUS = [
+  {name:"ゆか",   pdf:"pdfs_jp/JP_Kitei2022_FX.pdf", video:"videos_local/kitei2022_FX.mp4", note:""},
+  {name:"あん馬", pdf:"pdfs_jp/JP_Kitei2022_PH.pdf", video:"videos_local/kitei2022_PH.mp4", note:"規定１・規定２"},
+  {name:"つり輪", pdf:"pdfs_jp/JP_Kitei2022_SR.pdf", video:"videos_local/kitei2022_SR.mp4", note:""},
+  {name:"跳馬",   pdf:"pdfs_jp/JP_Kitei2022_VT.pdf", video:"videos_local/kitei2022_VT.mp4", note:""},
+  {name:"平行棒", pdf:"pdfs_jp/JP_Kitei2022_PB.pdf", video:"videos_local/kitei2022_PB.mp4", note:""},
+  {name:"鉄棒",   pdf:"pdfs_jp/JP_Kitei2022_HB.pdf", video:"videos_local/kitei2022_HB.mp4", note:""},
+];
+
+document.getElementById('sections').innerHTML = APPARATUS.map((a,i)=>`
+  <section class="app-sec">
+    <div class="app-head">
+      <span class="pos mono">${String(i+1).padStart(2,'0')}</span>
+      <h2 class="app-name">${esc(a.name)}</h2>
+    </div>
+    <div class="app-body">
+      <div class="vbox">
+        <video controls preload="metadata" playsinline
+               src="${esc(a.video)}"
+               onerror="this.outerHTML='<div class=&quot;vmissing&quot;>動画は準備中です</div>'"></video>
+        <div class="vtitle">2022年度版 小学生適用 規定演技 ${esc(a.name)}</div>
+      </div>
+      <div class="pdfcard">
+        <a href="${esc(a.pdf)}" target="_blank" rel="noopener">
+          ${fileIcon}
+          <span class="doc-title">${esc(a.name)} 規定演技（解説・減点表）<span class="doc-sub">${esc(a.note || '2022年度版 小学生適用')}</span></span>
+          <span class="doc-go">OPEN ↗</span>
+        </a>
+      </div>
+    </div>
+  </section>`).join('');
+</script>
+</body>
+</html>

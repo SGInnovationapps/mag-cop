@@ -33,6 +33,13 @@ ORDER = [
     "JP_Info33_08_tiebreak.pdf",
     "JP_Info33_09_naiki.pdf",
     "JP_Info33_10_manner.pdf",
+    "JP_Kitei2022_00_general.pdf",
+    "JP_Kitei2022_FX.pdf",
+    "JP_Kitei2022_PH.pdf",
+    "JP_Kitei2022_SR.pdf",
+    "JP_Kitei2022_VT.pdf",
+    "JP_Kitei2022_PB.pdf",
+    "JP_Kitei2022_HB.pdf",
 ]
 
 
