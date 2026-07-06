@@ -33,7 +33,7 @@
   function showBanner() {
     var css = ''
       + '#a2hs{position:fixed;left:0;right:0;bottom:0;z-index:9999;'
-      + 'background:#1a222b;border-top:2px solid #5a9e9f;color:#d8d8d8;'
+      + 'background:#26394a;border-top:2px solid #6fb9ba;color:#e8eaec;'
       + 'font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;'
       + 'padding:16px 18px calc(16px + env(safe-area-inset-bottom));'
       + 'box-shadow:0 -8px 30px rgba(0,0,0,.45);animation:a2hsUp .3s ease-out;}'
@@ -42,12 +42,12 @@
       + '#a2hs img{width:44px;height:44px;border-radius:9px;flex:0 0 44px;background:#fff;}'
       + '#a2hs .txt{flex:1;min-width:0;font-size:13px;line-height:1.55;}'
       + '#a2hs .txt b{display:block;font-size:14px;margin-bottom:2px;}'
-      + '#a2hs .txt .step{color:#7a8794;font-size:12px;}'
+      + '#a2hs .txt .step{color:#98a8b8;font-size:12px;}'
       + '#a2hs .btns{display:flex;flex-direction:column;gap:8px;flex:0 0 auto;}'
       + '#a2hs button{font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.08em;'
-      + 'cursor:pointer;border-radius:3px;padding:9px 16px;border:1px solid #37444f;}'
-      + '#a2hs .add{background:#5a9e9f;border-color:#5a9e9f;color:#0f1419;font-weight:700;}'
-      + '#a2hs .later{background:transparent;color:#7a8794;}';
+      + 'cursor:pointer;border-radius:3px;padding:9px 16px;border:1px solid #4a6076;}'
+      + '#a2hs .add{background:#6fb9ba;border-color:#6fb9ba;color:#182430;font-weight:700;}'
+      + '#a2hs .later{background:transparent;color:#98a8b8;}';
     var style = document.createElement('style');
     style.textContent = css;
     document.head.appendChild(style);
