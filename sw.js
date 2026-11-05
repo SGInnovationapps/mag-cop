@@ -3,7 +3,7 @@
    - index*.json / videos*.json: ネットワーク優先（常に最新、失敗時のみキャッシュ）
    - PDF: ネットワーク優先（容量が大きいため事前キャッシュはしない）
    更新時は CACHE_VERSION を上げると旧キャッシュが破棄される */
-const CACHE_VERSION = 'mag-cop-v4';
+const CACHE_VERSION = 'mag-cop-v5';
 const SHELL = [
   './',
   'index.html',
@@ -12,6 +12,8 @@ const SHELL = [
   'videos.html',
   'kitei.html',
   'manifest.json',
+  'theme.css',
+  'icons/ribbon.svg',
   'icons/icon-192.png',
   'icons/icon-512.png',
 ];

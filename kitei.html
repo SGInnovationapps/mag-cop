@@ -2,199 +2,164 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>MAG CoP — 小学生規定演技</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#182430">
+<meta name="theme-color" content="#1f1c46">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MAG CoP">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
+<link rel="stylesheet" href="theme.css">
 <script src="pwa.js" defer></script>
 <style>
-  :root{
-    --bg:#182430;
-    --panel:#20303f;
-    --panel-2:#26394a;
-    --line:#36495c;
-    --line-bright:#4a6076;
-    --txt:#e8eaec;
-    --txt-dim:#98a8b8;
-    --txt-faint:#66798c;
-    --green:#6fb9ba;
-    --purple:#a297cf;
-    --yellow:#cfa87a;
+  main.container{display:flex;flex-direction:column;gap:30px;}
+
+  /* ===== 総則リンク ===== */
+  .general{
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    background:var(--panel);border-radius:14px;padding:20px 24px;
+    text-decoration:none;color:var(--txt);transition:background .15s;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--bg);color:var(--txt);
-    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
-    line-height:1.6;-webkit-font-smoothing:antialiased;
-  }
-  .mono{font-family:ui-monospace,"SF Mono","Roboto Mono",Menlo,Consolas,monospace;}
-  .wrap{max-width:980px;margin:0 auto;padding:0 20px 100px;}
+  .general:hover{background:var(--panel-2);color:var(--txt);}
+  .general .badge{width:36px;height:36px;flex-basis:36px;border-radius:9px;}
+  .general .t{display:flex;flex-direction:column;gap:3px;flex:1;min-width:220px;}
+  .general .t b{font-size:17px;}
+  .general .t span{font-size:13px;color:var(--txt-faint);}
+  .general .go{font-family:var(--font-en);font-size:13px;color:var(--teal);letter-spacing:.1em;}
+  .general:hover .go{color:var(--lime);}
 
-  .topbar{
-    display:flex;align-items:center;gap:18px;
-    border-bottom:1px solid var(--line);padding:14px 0;
-    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.18em;
-    color:var(--txt-dim);text-transform:uppercase;
-  }
-  .topbar .live{display:flex;align-items:center;gap:7px;color:var(--green);}
-  .topbar .live::before{content:"";width:7px;height:7px;border-radius:50%;
-    background:var(--green);}
-  .topbar .sep{flex:1;height:1px;background:var(--line);}
+  /* ===== 種目ブロック ===== */
+  .app{display:flex;flex-direction:column;gap:16px;}
+  .app .sec-head .label{font-size:22px;}
+  .app .sec-head .en-label{font-family:var(--font-en);font-size:11px;letter-spacing:.22em;color:var(--txt-faint);}
+  .app-body{display:flex;gap:18px;flex-wrap:wrap;align-items:stretch;}
+  .vbox{flex:3 1 460px;min-width:0;background:var(--panel);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+  .vbox video{display:block;width:100%;aspect-ratio:16/9;background:#100e2a;}
+  .vmissing{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:#100e2a;color:var(--txt-faint);font-size:14px;letter-spacing:.06em;}
+  .vcap{padding:14px 18px;font-size:13px;color:var(--txt-dim);}
+  .side{flex:2 1 300px;min-width:0;display:flex;flex-direction:column;gap:12px;}
+  .pdf{display:flex;align-items:center;gap:14px;background:var(--panel);border-radius:14px;padding:18px 20px;min-height:44px;text-decoration:none;color:var(--txt);transition:background .15s;}
+  .pdf:hover{background:var(--panel-2);color:var(--txt);}
+  .pdf .doc-ic{width:20px;height:22px;flex-basis:20px;}
+  .pdf .t{display:flex;flex-direction:column;gap:3px;flex:1;}
+  .pdf .t b{font-size:15px;}
+  .pdf .t span{font-size:12px;color:var(--txt-faint);}
+  .pdf .go{font-family:var(--font-en);font-size:12px;color:var(--txt-faint);}
+  .pdf:hover .go,.pdf:hover .doc-ic{color:var(--lime);stroke:var(--lime);}
+  .points{background:var(--header);border:1px solid var(--line-soft);border-radius:14px;padding:16px 20px;display:flex;flex-direction:column;gap:10px;}
+  .points .lab{font-family:var(--font-en);font-size:11px;letter-spacing:.22em;color:var(--txt-faint);}
+  .points .row{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--txt-soft);}
+  .points .row strong{font-family:var(--font-en);font-size:22px;color:var(--txt);margin-left:4px;}
+  .points .row strong.lime{color:var(--lime);}
+  .points .note{font-size:12px;color:var(--txt-faint);line-height:1.7;}
 
-  header{padding:30px 0 22px;}
-  .eyebrow{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.42em;
-    color:var(--purple);text-transform:uppercase;margin:0 0 12px;}
-  h1{font-size:38px;font-weight:800;margin:0;letter-spacing:.01em;line-height:1.1;}
-  h1 .h1-small{font-size:17px;font-weight:600;color:var(--txt-dim);letter-spacing:.06em;}
-  h1 .slash{color:var(--yellow);font-weight:400;}
-  .sub{color:var(--txt-dim);font-size:13px;margin:10px 0 0;letter-spacing:.04em;}
-
-  .nav{display:flex;gap:0;margin-top:22px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
-  .nav a{font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.18em;
-    text-transform:uppercase;text-decoration:none;color:var(--txt-dim);
-    padding:11px 20px;border-bottom:2px solid transparent;margin-bottom:-1px;
-    transition:color .15s,border-color .15s,background .15s;}
-  .nav a:hover{color:var(--txt);background:var(--panel);}
-  .nav a.here{color:var(--bg);background:var(--green);border-bottom-color:var(--green);font-weight:700;}
-
-  /* 総則リンク */
-  .general-link{
-    display:flex;align-items:center;gap:12px;margin-top:26px;
-    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--yellow);
-    border-radius:3px;padding:13px 16px;text-decoration:none;color:var(--txt);
-    transition:border-color .15s;
-  }
-  .general-link:hover{border-color:var(--yellow);}
-  .general-link .t{font-size:14px;font-weight:700;}
-  .general-link .s{font-family:ui-monospace,monospace;font-size:10px;color:var(--txt-faint);
-    display:block;letter-spacing:.06em;margin-top:2px;}
-  .general-link .go{margin-left:auto;font-family:ui-monospace,monospace;font-size:10px;
-    letter-spacing:.12em;color:var(--txt-faint);white-space:nowrap;}
-  .general-link:hover .go{color:var(--yellow);}
-
-  /* 種目セクション */
-  .app-sec{margin-top:34px;}
-  .app-head{display:flex;align-items:center;gap:12px;margin:0 0 12px;}
-  .pos{font-family:ui-monospace,monospace;font-weight:700;font-size:13px;
-    color:var(--bg);background:var(--purple);width:26px;height:26px;flex:0 0 26px;
-    display:flex;align-items:center;justify-content:center;border-radius:2px;}
-  .app-name{font-size:19px;font-weight:700;letter-spacing:.04em;margin:0;}
-  .app-head::after{content:"";flex:1;height:1px;background:var(--line);}
-
-  .app-body{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:start;}
-  @media(max-width:720px){.app-body{grid-template-columns:1fr;}}
-
-  .vbox{background:var(--panel);border:1px solid var(--line);border-radius:4px;overflow:hidden;}
-  .vbox video{display:block;width:100%;aspect-ratio:16/9;background:#000;}
-  .vbox .vtitle{padding:10px 13px;font-family:ui-monospace,monospace;font-size:11px;
-    color:var(--txt-dim);letter-spacing:.05em;}
-  .vmissing{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
-    color:var(--txt-faint);font-family:ui-monospace,monospace;font-size:12px;
-    letter-spacing:.1em;background:var(--panel-2);}
-
-  .pdfcard{background:var(--panel);border:1px solid var(--line);border-radius:4px;}
-  .pdfcard a{display:grid;grid-template-columns:20px 1fr auto;gap:11px;align-items:center;
-    padding:13px 15px;text-decoration:none;color:var(--txt);transition:background .12s;}
-  .pdfcard a:hover{background:var(--panel-2);}
-  .doc-ic{width:15px;height:18px;stroke:var(--green);fill:none;}
-  .pdfcard a:hover .doc-ic{stroke:var(--yellow);}
-  .doc-title{font-size:13px;min-width:0;line-height:1.4;}
-  .doc-sub{font-family:ui-monospace,monospace;font-size:10px;color:var(--txt-faint);
-    display:block;margin-top:2px;letter-spacing:.06em;}
-  .doc-go{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.12em;
-    color:var(--txt-faint);white-space:nowrap;}
-  .pdfcard a:hover .doc-go{color:var(--yellow);}
-
-  footer{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;
-    font-family:ui-monospace,monospace;font-size:11px;color:var(--txt-faint);
-    letter-spacing:.06em;line-height:1.9;}
-
-  @media(max-width:560px){
-    h1{font-size:28px;}
-    .topbar{gap:10px;font-size:10px;flex-wrap:wrap;}
-    .nav a{padding:11px 13px;letter-spacing:.1em;}
+  @media(max-width:600px){
+    main.container{gap:24px;}
+    .general{padding:16px 18px;gap:14px;}
+    .app .sec-head .label{font-size:19px;}
+    .app .sec-head .en-label{display:none;}
+    .vbox,.side{flex-basis:100%;}
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="topbar mono">
-    <span class="live">Compulsory 2022</span>
-    <span class="sep"></span>
-    <span>小学生適用 · MAG</span>
-  </div>
-
-  <header>
-    <p class="eyebrow">MAG CoP</p>
-    <h1><span class="h1-small">体操競技男子</span> <span class="slash">/</span> 小学生規定演技</h1>
-    <p class="sub">2022年度版 小学生適用（日本体操協会）。種目ごとの規則PDFと参考動画。</p>
-    <nav class="nav">
-      <a href="saiten-search.html">検索</a>
-      <a href="pdf-list.html">PDF一覧</a>
-      <a href="videos.html">動画</a>
-      <a class="here">小学生規定演技</a>
-    </nav>
-  </header>
-
-  <a class="general-link" href="pdfs_jp/JP_Kitei2022_00_general.pdf" target="_blank" rel="noopener">
-    <div>
-      <span class="t">総則 — 演技の採点・器械器具の寸度</span>
-      <span class="s">改定のねらい・発刊によせて を含む</span>
+<header class="site-head">
+  <div class="container">
+    <div class="brand-row">
+      <div class="brand"><b>MAG CoP</b><span>Code of Points Search</span></div>
+      <span class="brand-meta">2022年度版 小学生適用</span>
     </div>
-    <span class="go mono">OPEN ↗</span>
+    <div class="title">
+      <span class="kicker">体操競技男子</span>
+      <h1>小学生規定演技</h1>
+    </div>
+    <nav class="tabs" aria-label="ページ切り替え">
+      <a href="saiten-search.html" data-nav>検索</a>
+      <a href="pdf-list.html" data-nav>PDF<span class="long">一覧</span></a>
+      <a href="videos.html" data-nav>動画</a>
+      <a href="kitei.html" data-nav class="wide" aria-current="page"><span class="long">小学生</span>規定演技</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <a class="general" href="pdfs_jp/JP_Kitei2022_00_general.pdf" target="_blank" rel="noopener">
+    <span class="badge">§</span>
+    <span class="t"><b>総則 — 演技の採点・器械器具の寸度</b><span>改定のねらい・発刊によせて を含む</span></span>
+    <span class="go">PDFを開く ↗</span>
   </a>
 
-  <div id="sections"></div>
+  <div id="sections" style="display:flex;flex-direction:column;gap:34px"></div>
 
-  <footer>
-    出典：体操競技男子 ジュニア規定演技 2022年度版 小学生適用（公益財団法人 日本体操協会） · 動画の差し替えは videos_local/ 内のファイルを更新
+  <footer class="site-foot">
+    <span>出典：体操競技男子 ジュニア規定演技 2022年度版 小学生適用（公益財団法人 日本体操協会）</span>
   </footer>
-</div>
+</main>
 
 <script>
-function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-const fileIcon=`<svg class="doc-ic" viewBox="0 0 24 24" stroke-width="1.6" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/></svg>`;
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+const fileIcon=`<svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/></svg>`;
 
-/* 種目 → PDF・動画。動画は videos_local/ に置いたMP4を参照。
-   ファイルを差し替えるだけで更新できる。 */
+/* 種目 → PDF・動画・配点メモ。動画は videos_local/ に置いたMP4を参照。
+   ファイルを差し替えるだけで更新できる。note は規定演技PDFの記載から抜粋。 */
 const APPARATUS = [
-  {name:"ゆか",   pdf:"pdfs_jp/JP_Kitei2022_FX.pdf", video:"videos_local/kitei2022_FX.mp4", note:""},
-  {name:"あん馬", pdf:"pdfs_jp/JP_Kitei2022_PH.pdf", video:"videos_local/kitei2022_PH.mp4", note:"規定１・規定２"},
-  {name:"つり輪", pdf:"pdfs_jp/JP_Kitei2022_SR.pdf", video:"videos_local/kitei2022_SR.mp4", note:""},
-  {name:"跳馬",   pdf:"pdfs_jp/JP_Kitei2022_VT.pdf", video:"videos_local/kitei2022_VT.mp4", note:""},
-  {name:"平行棒", pdf:"pdfs_jp/JP_Kitei2022_PB.pdf", video:"videos_local/kitei2022_PB.mp4", note:""},
-  {name:"鉄棒",   pdf:"pdfs_jp/JP_Kitei2022_HB.pdf", video:"videos_local/kitei2022_HB.mp4", note:""},
+  {name:"ゆか",   en:"Floor",    pdf:"pdfs_jp/JP_Kitei2022_FX.pdf", video:"videos_local/kitei2022_FX.mp4", sub:"解説・減点表",
+   note:"演技時間は75秒以内。演技時間の超過（76秒以上）は0.3の減点。"},
+  {name:"あん馬", en:"Pommel",   pdf:"pdfs_jp/JP_Kitei2022_PH.pdf", video:"videos_local/kitei2022_PH.mp4", sub:"規定１・規定２ · 解説・減点表",
+   note:"規定１は両把手上 横向き旋回10回、規定２は把手なしあん馬で実施。"},
+  {name:"つり輪", en:"Rings",    pdf:"pdfs_jp/JP_Kitei2022_SR.pdf", video:"videos_local/kitei2022_SR.mp4", sub:"解説・減点表",
+   note:"区分Ⅰの前振り出し以外、原則として演技は伸腕で行う。"},
+  {name:"跳馬",   en:"Vault",    pdf:"pdfs_jp/JP_Kitei2022_VT.pdf", video:"videos_local/kitei2022_VT.mp4", sub:"前転とび · 解説・減点表",
+   note:"前転とびを2跳越し、その平均点を決定点とする。ライン減点は設定しない。"},
+  {name:"平行棒", en:"P-Bars",   pdf:"pdfs_jp/JP_Kitei2022_PB.pdf", video:"videos_local/kitei2022_PB.mp4", sub:"解説・減点表",
+   note:"静止技で静止時間が2秒未満は各々0.3、静止が見られない場合は各々0.5の減点。"},
+  {name:"鉄棒",   en:"High Bar", pdf:"pdfs_jp/JP_Kitei2022_HB.pdf", video:"videos_local/kitei2022_HB.mp4", sub:"解説・減点表",
+   note:"車輪の過不足は、超過が毎回0.3、不足が毎回1.0の減点。"},
 ];
 
-document.getElementById('sections').innerHTML = APPARATUS.map((a,i)=>`
-  <section class="app-sec">
-    <div class="app-head">
-      <span class="pos mono">${String(i+1).padStart(2,'0')}</span>
-      <h2 class="app-name">${esc(a.name)}</h2>
-    </div>
+const el = document.getElementById('sections');
+el.innerHTML = APPARATUS.map((a,i)=>`
+  <section class="app">
+    <h2 class="sec-head">
+      <span class="badge teal">${String(i+1).padStart(2,'0')}</span>
+      <span class="label">${esc(a.name)}</span>
+      <span class="en-label">${esc(a.en.toUpperCase())}</span>
+    </h2>
     <div class="app-body">
       <div class="vbox">
-        <video controls preload="metadata" playsinline
-               src="${esc(a.video)}"
-               onerror="this.outerHTML='<div class=&quot;vmissing&quot;>動画は準備中です</div>'"></video>
-        <div class="vtitle">2022年度版 小学生適用 規定演技 ${esc(a.name)}</div>
+        <video controls preload="metadata" playsinline src="${esc(a.video)}#t=0.1"></video>
+        <div class="vcap">2022年度版 小学生適用 規定演技 ${esc(a.name)}</div>
       </div>
-      <div class="pdfcard">
-        <a href="${esc(a.pdf)}" target="_blank" rel="noopener">
+      <div class="side">
+        <a class="pdf" href="${esc(a.pdf)}" target="_blank" rel="noopener">
           ${fileIcon}
-          <span class="doc-title">${esc(a.name)} 規定演技（解説・減点表）<span class="doc-sub">${esc(a.note || '2022年度版 小学生適用')}</span></span>
-          <span class="doc-go">OPEN ↗</span>
+          <span class="t"><b>${esc(a.name)} 規定演技</b><span>${esc(a.sub)}</span></span>
+          <span class="go">↗</span>
         </a>
+        <div class="points">
+          <span class="lab">配点</span>
+          <div class="row"><span>実施<strong>9.5</strong></span><span>加点<strong class="lime">0.5</strong></span></div>
+          <span class="note">${esc(a.note)}</span>
+        </div>
       </div>
     </div>
   </section>`).join('');
+
+// 動画が読み込めない場合は「準備中」表示に差し替え
+el.querySelectorAll('video').forEach(v=>{
+  v.addEventListener('error', ()=>{
+    const d = document.createElement('div');
+    d.className = 'vmissing';
+    d.textContent = '動画は準備中です';
+    v.replaceWith(d);
+  });
+});
 </script>
 </body>
 </html>

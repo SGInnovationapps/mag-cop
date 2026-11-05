@@ -2,209 +2,132 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>MAG CoP — 採点規則検索</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#182430">
+<meta name="theme-color" content="#1f1c46">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MAG CoP">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
+<link rel="stylesheet" href="theme.css">
 <script src="pwa.js" defer></script>
-
 <style>
-  :root{
-    --bg:#182430;
-    --panel:#20303f;
-    --panel-2:#26394a;
-    --line:#36495c;
-    --line-bright:#4a6076;
-    --txt:#e8eaec;
-    --txt-dim:#98a8b8;
-    --txt-faint:#66798c;
-    --green:#6fb9ba;     /* 青緑 */
-    --purple:#a297cf;    /* 紫 */
-    --yellow:#cfa87a;    /* くすんだベージュ */
-    --green-dim:rgba(111,185,186,.16);
-    --purple-dim:rgba(162,151,207,.18);
-    --yellow-dim:rgba(207,168,122,.18);
+  /* ===== 検索欄（スクロールしても上に残る） ===== */
+  .search-zone{
+    position:sticky;top:0;z-index:9;background:var(--bg);
+    padding:12px 0 16px;display:flex;flex-direction:column;gap:16px;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--bg);
-    color:var(--txt);
-    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
-    line-height:1.6;
-    -webkit-font-smoothing:antialiased;
-  }
-  .mono{font-family:ui-monospace,"SF Mono","Roboto Mono",Menlo,Consolas,monospace;}
-  .wrap{max-width:980px;margin:0 auto;padding:0 20px 100px;}
-
-  /* ===== telemetry top bar ===== */
-  .topbar{
-    display:flex;align-items:center;gap:18px;
-    border-bottom:1px solid var(--line);
-    padding:14px 0;margin-bottom:0;
-    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.18em;
-    color:var(--txt-dim);text-transform:uppercase;
-  }
-  .topbar .live{display:flex;align-items:center;gap:7px;color:var(--green);}
-  .topbar .live::before{
-    content:"";width:7px;height:7px;border-radius:50%;background:var(--green);
-  }
-  .topbar .sep{flex:1;height:1px;background:var(--line);}
-
-  /* ===== header ===== */
-  header{padding:30px 0 22px;}
-  .eyebrow{
-    font-family:ui-monospace,monospace;
-    font-size:11px;letter-spacing:.42em;color:var(--purple);
-    text-transform:uppercase;margin:0 0 12px;
-  }
-  h1{
-    font-size:38px;font-weight:800;margin:0;letter-spacing:.01em;line-height:1.1;
-  }
-  h1 .h1-small{font-size:17px;font-weight:600;color:var(--txt-dim);letter-spacing:.06em;}
-  h1 .slash{color:var(--yellow);font-weight:400;}
-  .sub{color:var(--txt-dim);font-size:13px;margin:10px 0 0;letter-spacing:.04em;}
-
-  /* ===== nav (tab strip) ===== */
-  .nav{display:flex;gap:0;margin-top:22px;border-bottom:1px solid var(--line);}
-  .nav a{
-    font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.18em;
-    text-transform:uppercase;text-decoration:none;color:var(--txt-dim);
-    padding:11px 20px;border-bottom:2px solid transparent;margin-bottom:-1px;
-    transition:color .15s,border-color .15s,background .15s;
-  }
-  .nav a:hover{color:var(--txt);background:var(--panel);}
-  .nav a.here{color:var(--bg);background:var(--green);border-bottom-color:var(--green);font-weight:700;}
-
-  /* ===== search field ===== */
-  .search-zone{position:sticky;top:0;background:var(--bg);z-index:9;
-    padding:22px 0 14px;}
+  .field-label{font-size:13px;font-weight:500;color:var(--txt-dim);letter-spacing:.1em;margin-bottom:-6px;}
   .field{position:relative;}
-  .field svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);
-    width:18px;height:18px;stroke:var(--yellow);}
+  .field svg{position:absolute;left:20px;top:50%;transform:translateY(-50%);width:22px;height:22px;stroke:var(--lime);fill:none;}
   input[type=search]{
-    width:100%;font-size:17px;padding:15px 16px 15px 46px;
-    border:1px solid var(--line-bright);border-radius:3px;
-    background:var(--panel);color:var(--txt);
-    font-family:ui-monospace,monospace;outline:none;letter-spacing:.02em;
+    width:100%;font-family:var(--font-jp);font-size:19px;
+    padding:18px 20px 18px 56px;border-radius:14px;
+    border:2px solid var(--pill-line);background:var(--panel);color:var(--txt);outline:none;
+    transition:border-color .15s;
   }
-  input[type=search]::placeholder{color:var(--txt-faint);}
-  input[type=search]:focus{border-color:var(--yellow);
-    box-shadow:0 0 0 3px var(--yellow-dim);background:var(--panel-2);}
+  input[type=search]::placeholder{color:var(--txt-mute);}
+  input[type=search]:focus{border-color:var(--teal);}
 
-  .meta-row{display:flex;justify-content:space-between;align-items:center;
-    margin-top:12px;font-family:ui-monospace,monospace;
-    font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-dim);}
-  .count strong{color:var(--green);font-size:13px;}
-  .scope{color:var(--purple);}
-
-  /* ===== scope tabs (国際/国内/両方) ===== */
-  .scope-tabs{display:flex;gap:8px;margin-top:14px;}
+  /* ===== 検索対象の切り替え ===== */
+  .scope-tabs{display:flex;gap:10px;flex-wrap:wrap;}
   .scope-tabs button{
-    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.14em;
-    text-transform:uppercase;cursor:pointer;
-    padding:7px 16px;border-radius:3px;
-    border:1px solid var(--line-bright);
-    background:var(--panel);color:var(--txt-dim);
-    transition:color .15s,border-color .15s,background .15s;
+    font-family:var(--font-jp);font-size:14px;font-weight:500;cursor:pointer;
+    padding:11px 22px;min-height:44px;border-radius:999px;
+    border:1.5px solid var(--pill-line);background:transparent;color:var(--txt-soft);
+    transition:border-color .15s,background .15s,color .15s;
   }
-  .scope-tabs button:hover{color:var(--txt);border-color:var(--yellow);}
-  .scope-tabs button.on{
-    background:var(--green);color:var(--bg);
-    border-color:var(--green);font-weight:700;
-  }
+  .scope-tabs button:hover{border-color:var(--teal);color:var(--txt);}
+  .scope-tabs button[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--bg);font-weight:700;}
 
-  /* ===== group heading for 両方検索 ===== */
-  .group-head{
-    display:flex;align-items:center;gap:10px;
-    margin:22px 0 10px;font-family:ui-monospace,monospace;
-    font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--purple);
-  }
-  .group-head::after{content:"";flex:1;height:1px;background:var(--line);}
+  /* ===== 件数 ===== */
+  .meta-row{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;min-height:28px;}
+  .meta-row .count{font-size:14px;color:var(--txt-dim);}
+  .meta-row .count strong{font-family:var(--font-en);font-size:22px;color:var(--lime);margin:0 2px;}
+  .meta-row .scope{font-size:13px;color:var(--txt-faint);margin-left:auto;}
 
-  /* ===== results ===== */
-  ul.results{list-style:none;margin:18px 0 0;padding:0;}
-  li.hit{
-    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--purple);
-    border-radius:3px;margin-bottom:10px;
-    overflow:hidden;transition:border-color .15s,transform .12s;
+  /* ===== 結果 ===== */
+  .results{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:12px;}
+  .results .sec-head{padding-top:12px;}
+  .results .sec-head:not(:first-child){padding-top:24px;}
+  .hit-link{
+    display:grid;grid-template-columns:88px minmax(0,1fr) 48px;align-items:center;
+    background:var(--panel);border-radius:14px;overflow:hidden;
+    text-decoration:none;color:var(--txt);transition:background .15s;
   }
-  li.hit .hit-link{
-    display:grid;grid-template-columns:74px 1fr;
-    text-decoration:none;color:inherit;
-  }
-  li.hit:hover{border-color:var(--line-bright);border-left-color:var(--yellow);transform:translateX(2px);}
+  .hit-link:hover{background:var(--panel-2);color:var(--txt);}
   .page-cell{
-    background:var(--panel-2);border-right:1px solid var(--line);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:12px 4px;font-family:ui-monospace,monospace;
+    align-self:stretch;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    background:var(--panel-2);padding:18px 0;
   }
-  .page-cell .lab{font-size:9px;letter-spacing:.2em;color:var(--txt-faint);text-transform:uppercase;}
-  .page-cell .num{font-size:22px;font-weight:700;color:var(--purple);line-height:1.1;}
-  .hit-body{padding:14px 16px;min-width:0;}
-  .filename{font-family:ui-monospace,monospace;font-size:12px;margin:0 0 7px;
-    letter-spacing:.02em;display:flex;align-items:center;gap:8px;color:var(--green);}
-  li.hit:hover .filename{color:var(--yellow);}
-  .filename .ext{color:var(--txt-faint);}
-  .snippet{font-size:14px;color:#d2d7dc;margin:0;line-height:1.7;}
-  mark{background:var(--yellow);color:var(--bg);padding:0 3px;border-radius:2px;font-weight:600;}
+  .hit-link:hover .page-cell{background:#34316a;}
+  .page-cell .lab{font-family:var(--font-en);font-size:10px;letter-spacing:.22em;color:var(--txt-faint);}
+  .page-cell .num{font-family:var(--font-en);font-size:28px;font-weight:700;color:var(--teal);line-height:1;}
+  .hit-link.jp .page-cell .num{color:var(--lime);}
+  .hit-body{padding:18px 22px;display:flex;flex-direction:column;gap:6px;min-width:0;}
+  .filename{font-family:var(--font-en);font-size:12px;color:var(--txt-dim);letter-spacing:.04em;overflow-wrap:anywhere;}
+  .snippet{font-size:16px;line-height:1.75;}
+  mark{background:var(--lime);color:var(--bg);padding:1px 5px;border-radius:4px;font-weight:700;}
+  .go{width:20px;height:20px;stroke:var(--txt-mute);fill:none;justify-self:center;}
+  .hit-link:hover .go{stroke:var(--lime);}
 
-  .empty{padding:70px 20px;text-align:center;color:var(--txt-dim);
-    font-family:ui-monospace,monospace;font-size:13px;letter-spacing:.08em;}
-  .empty .big{font-size:30px;color:var(--line-bright);margin-bottom:16px;letter-spacing:.3em;}
-  .empty .accent{color:var(--purple);}
-
-  footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;
-    font-family:ui-monospace,monospace;font-size:11px;color:var(--txt-faint);
-    letter-spacing:.06em;line-height:1.9;}
-
-  @media(max-width:560px){
-    h1{font-size:28px;}
-    .topbar{gap:10px;font-size:10px;flex-wrap:wrap;}
-    li.hit{grid-template-columns:58px 1fr;}
-    .nav a{padding:11px 13px;letter-spacing:.1em;}
-  }
-  @media(prefers-reduced-motion:reduce){
-    li.hit{transition:none;}
+  @media(max-width:600px){
+    .field-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+    input[type=search]{font-size:17px;padding:14px 14px 14px 46px;border-radius:12px;}
+    .field svg{left:16px;width:20px;height:20px;}
+    .scope-tabs{gap:8px;flex-wrap:nowrap;}
+    .scope-tabs button{flex:1 1 0;padding:10px 4px;font-size:13px;}
+    .scope-tabs .long{display:none;}
+    .hit-link{grid-template-columns:62px minmax(0,1fr);border-radius:12px;}
+    .page-cell{padding:14px 0;}
+    .page-cell .lab{font-size:9px;}
+    .page-cell .num{font-size:22px;}
+    .hit-body{padding:12px 14px;gap:4px;}
+    .filename{font-size:11px;}
+    .snippet{font-size:14px;line-height:1.65;}
+    .go{display:none;}
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="topbar mono">
-    <span class="live">Index Online</span>
-    <span class="sep"></span>
-    <span>MAG · Code of Points</span>
-  </div>
-
-  <header>
-    <p class="eyebrow">MAG CoP</p>
-    <h1><span class="h1-small">体操競技男子</span> <span class="slash">/</span> 採点規則検索</h1>
-    <nav class="nav">
-      <a class="here">検索</a>
-      <a href="pdf-list.html">PDF一覧</a>
-      <a href="videos.html">動画</a>
-      <a href="kitei.html">小学生規定演技</a>
+<header class="site-head">
+  <div class="container">
+    <div class="brand-row">
+      <div class="brand"><b>MAG CoP</b><span>Code of Points Search</span></div>
+      <span class="brand-meta">国際 ＋ 国内 · <span id="docCount">—</span> PDF</span>
+    </div>
+    <div class="title">
+      <span class="kicker">体操競技男子</span>
+      <h1>採点規則検索</h1>
+    </div>
+    <nav class="tabs" aria-label="ページ切り替え">
+      <a href="saiten-search.html" data-nav aria-current="page">検索</a>
+      <a href="pdf-list.html" data-nav>PDF<span class="long">一覧</span></a>
+      <a href="videos.html" data-nav>動画</a>
+      <a href="kitei.html" data-nav class="wide"><span class="long">小学生</span>規定演技</a>
     </nav>
-  </header>
+  </div>
+</header>
 
+<main class="container">
   <div class="search-zone">
+    <label class="field-label" for="q">キーワード検索</label>
     <div class="field">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="search" id="q" placeholder="キーワードを入力（例：減点、加点、あん馬）" autocomplete="off" autofocus>
+      <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" id="q" placeholder="キーワードを入力（例：減点、加点、あん馬）" autocomplete="off" enterkeyhint="search" autofocus>
     </div>
-    <div class="scope-tabs" id="scopeTabs">
-      <button data-scope="intl" class="on">国際ルール</button>
-      <button data-scope="jp">国内ルール</button>
-      <button data-scope="both">両方検索</button>
+    <div class="scope-tabs" id="scopeTabs" role="group" aria-label="検索対象">
+      <button type="button" data-scope="intl" aria-pressed="true">国際<span class="long">ルール</span></button>
+      <button type="button" data-scope="jp" aria-pressed="false">国内<span class="long">ルール</span></button>
+      <button type="button" data-scope="both" aria-pressed="false">両方<span class="long">検索</span></button>
     </div>
-    <div class="meta-row mono">
+    <div class="meta-row" aria-live="polite">
       <span class="count" id="count"></span>
       <span class="scope" id="scope"></span>
     </div>
@@ -212,10 +135,11 @@
 
   <ul class="results" id="results"></ul>
 
-  <footer>
-    収録 <span id="docCount"></span> PDF · 検索は端末内で完結し外部送信なし · ヒット行から該当ページへ直接ジャンプ
+  <footer class="site-foot">
+    <span>検索は端末内で完結（外部送信なし）</span>
+    <span>カードをタップで該当ページを開く</span>
   </footer>
-</div>
+</main>
 
 <script>
 /* 国際（index.json）と国内（index_jp.json）の2つのインデックスを読み込み、
@@ -231,6 +155,9 @@ const elQ=document.getElementById('q'),
       elS=document.getElementById('scope'),
       elDoc=document.getElementById('docCount');
 
+const ICON_GO = `<svg class="go" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>`;
+const NO_HIT  = `<li class="state"><div class="big">NO DATA</div>該当なし — 表記ゆれ（漢字／かな）や別の語を試してください</li>`;
+
 function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function tokens(q){return q.trim().split(/[\s　]+/).filter(Boolean);}
 function highlight(text, terms){
@@ -243,7 +170,7 @@ function highlight(text, terms){
 }
 function search(q){
   const terms = tokens(q);
-  if(terms.length===0){ render([],terms); return; }
+  if(terms.length===0){ clearResults(); return; }
   const match = r => terms.every(t => r.text.includes(t) || r.file.includes(t));
   if(SCOPE==='both'){
     renderBoth(INDEX_INTL.filter(match), INDEX_JP.filter(match), terms);
@@ -252,86 +179,81 @@ function search(q){
     render(src.filter(match), terms);
   }
 }
-function splitExt(name){const i=name.lastIndexOf('.');return i<0?[name,'']:[name.slice(0,i),name.slice(i)];}
-function snippetFor(text, terms){
-  // 最初にヒットした語を含む「一文」を切り出す（。／改行区切り）
-  let pos = -1;
-  for(const t of terms){ const i=text.indexOf(t); if(i>=0 && (pos<0||i<pos)) pos=i; }
+function snippetFor(raw, terms){
+  // 目次の点線リーダー（‥‥‥ や ・・・）を詰める
+  const text = raw.replace(/[‥…・·\.．]{3,}/g, ' … ').replace(/\s{2,}/g, ' ');
+  // 最初にヒットした語の位置
+  let pos = -1, len = 0;
+  for(const t of terms){ const i=text.indexOf(t); if(i>=0 && (pos<0||i<pos)){ pos=i; len=t.length; } }
   if(pos<0) return text.slice(0,80)+(text.length>80?'…':'');
+  // ヒット語を含む「一文」（。等で区切る）
   const seps=['。','．','！','？'];
   let start=0;
   for(const sep of seps){ const i=text.lastIndexOf(sep,pos); if(i+1>start) start=i+1; }
   let end=text.length;
   for(const sep of seps){ const i=text.indexOf(sep,pos); if(i>=0 && i+1<end) end=i+1; }
-  let sent=text.slice(start,end).trim();
-  if(sent.length>160) sent=sent.slice(0,160)+'…';   // 極端に長い一文の保険
-  return sent;
+  // 一文が長すぎるときはヒット語の前後だけを残す
+  const MAX=90, BEFORE=30;
+  if(end-start > MAX){
+    const s = Math.max(start, pos-BEFORE);
+    const e = Math.min(end, s+MAX, Math.max(pos+len, s+MAX));
+    return (s>start?'…':'') + text.slice(s,e).trim() + (e<end?'…':'');
+  }
+  return text.slice(start,end).trim();
 }
 function hitHTML(h, terms){
-  const [base,ext]=splitExt(h.file);
+  const name = h.file.split('/').pop();
+  const jp = h.file.startsWith('pdfs_jp/') ? ' jp' : '';
   return `
-    <li class="hit">
-      <a class="hit-link" href="${esc(h.file)}#page=${h.page}" target="_blank" rel="noopener">
-        <div class="page-cell">
+    <li>
+      <a class="hit-link${jp}" href="${esc(h.file)}#page=${h.page}" target="_blank" rel="noopener">
+        <span class="page-cell">
           <span class="lab">PAGE</span>
           <span class="num">${String(h.page).padStart(2,'0')}</span>
-        </div>
-        <div class="hit-body">
-          <p class="filename mono">${esc(base)}<span class="ext">${esc(ext)}</span></p>
-          <p class="snippet">${highlight(snippetFor(h.text, terms), terms)}</p>
-        </div>
+        </span>
+        <span class="hit-body">
+          <span class="filename">${esc(name)}</span>
+          <span class="snippet">${highlight(snippetFor(h.text, terms), terms)}</span>
+        </span>
+        ${ICON_GO}
       </a>
     </li>`;
 }
-function emptyGuide(){
-  elR.innerHTML='';
-  elC.innerHTML=''; elS.textContent='';
+function groupHead(tag, label, n, lime){
+  return `<li class="sec-head"><span class="tag${lime?' lime':''}">${tag}</span><span class="label">${label}</span><span class="cnt">${n}件</span></li>`;
+}
+function clearResults(){
+  elR.innerHTML=''; elC.innerHTML=''; elS.textContent='';
 }
 function render(hits, terms){
-  if(terms.length===0){ emptyGuide(); return; }
   elC.innerHTML = `<strong>${hits.length}</strong> 件ヒット`;
   elS.textContent = `「${terms.join(' / ')}」`;
-  if(hits.length===0){
-    elR.innerHTML=`<div class="empty mono"><div class="big">NO DATA</div>該当なし — 表記ゆれ（漢字／かな）や別語を試してください</div>`;
-    return;
-  }
-  elR.innerHTML = hits.map(h=>hitHTML(h,terms)).join('');
+  elR.innerHTML = hits.length ? hits.map(h=>hitHTML(h,terms)).join('') : NO_HIT;
 }
 function renderBoth(intl, jp, terms){
-  if(terms.length===0){ emptyGuide(); return; }
-  elC.innerHTML = `国際 <strong>${intl.length}</strong> 件 / 国内 <strong>${jp.length}</strong> 件`;
+  elC.innerHTML = `国際 <strong>${intl.length}</strong> 件 ／ 国内 <strong>${jp.length}</strong> 件`;
   elS.textContent = `「${terms.join(' / ')}」`;
-  if(intl.length===0 && jp.length===0){
-    elR.innerHTML=`<div class="empty mono"><div class="big">NO DATA</div>該当なし — 表記ゆれ（漢字／かな）や別語を試してください</div>`;
-    return;
-  }
+  if(intl.length===0 && jp.length===0){ elR.innerHTML = NO_HIT; return; }
   let html='';
-  if(intl.length){ html += `<div class="group-head mono">国際ルール — ${intl.length}件</div>` + intl.map(h=>hitHTML(h,terms)).join(''); }
-  if(jp.length){ html += `<div class="group-head mono">国内ルール — ${jp.length}件</div>` + jp.map(h=>hitHTML(h,terms)).join(''); }
+  if(intl.length){ html += groupHead('INTERNATIONAL','国際ルール',intl.length,false) + intl.map(h=>hitHTML(h,terms)).join(''); }
+  if(jp.length){ html += groupHead('DOMESTIC','国内ルール',jp.length,true) + jp.map(h=>hitHTML(h,terms)).join(''); }
   elR.innerHTML = html;
 }
 let timer;
 elQ.addEventListener('input', e=>{clearTimeout(timer);timer=setTimeout(()=>search(e.target.value),110);});
 
-// ===== scope tabs =====
+// ===== 検索対象の切り替え =====
 document.getElementById('scopeTabs').addEventListener('click', e=>{
   const btn = e.target.closest('button'); if(!btn) return;
   SCOPE = btn.dataset.scope;
-  document.querySelectorAll('#scopeTabs button').forEach(b=>b.classList.toggle('on', b===btn));
-  updateDocCount();
+  document.querySelectorAll('#scopeTabs button').forEach(b=>b.setAttribute('aria-pressed', b===btn ? 'true' : 'false'));
   search(elQ.value);   // キーワードを保ったまま再検索
   elQ.focus();
 });
-function updateDocCount(){
-  const files = new Set();
-  if(SCOPE!=='jp')  INDEX_INTL.forEach(r=>files.add(r.file));
-  if(SCOPE!=='intl') INDEX_JP.forEach(r=>files.add(r.file));
-  elDoc.textContent = files.size;
-}
 
 // 初期表示（読み込み中）
 elQ.disabled = true;
-elR.innerHTML = `<div class="empty mono"><div class="big">· · ·</div>インデックスを読み込み中…</div>`;
+elR.innerHTML = `<li class="state"><div class="big">· · ·</div>インデックスを読み込み中…</li>`;
 
 // 国際・国内の両インデックスを並列で読み込む（片方失敗でも他方は使用可）
 Promise.allSettled([
@@ -341,17 +263,16 @@ Promise.allSettled([
   if(intl.status==='fulfilled') INDEX_INTL = intl.value;
   if(jp.status==='fulfilled')   INDEX_JP   = jp.value;
   if(INDEX_INTL.length===0 && INDEX_JP.length===0){
-    elR.innerHTML = `<div class="empty mono"><div class="big">LOAD ERROR</div>`+
+    elR.innerHTML = `<li class="state"><div class="big">LOAD ERROR</div>`+
       `インデックスを読み込めません<br>`+
-      `<span class="accent">file:// 直開きは不可</span> — python3 -m http.server か GitHub Pages で開いてください</div>`;
+      `<span class="accent">file:// 直開きは不可</span> — python3 -m http.server か GitHub Pages で開いてください</li>`;
     return;
   }
-  updateDocCount();
+  elDoc.textContent = new Set([...INDEX_INTL, ...INDEX_JP].map(r=>r.file)).size;
   elQ.disabled = false;
-  emptyGuide();
+  clearResults();
   elQ.focus();
 });
-
 </script>
 </body>
 </html>

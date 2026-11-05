@@ -2,35 +2,32 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="refresh" content="0; url=saiten-search.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>MAG CoP — 採点規則</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#182430">
+<meta name="theme-color" content="#1f1c46">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MAG CoP">
-<script src="pwa.js" defer></script>
-
+<!-- 履歴を残さず検索ページへ（戻るボタンでここに戻らないよう replace を使う） -->
+<script>location.replace('saiten-search.html');</script>
+<noscript><meta http-equiv="refresh" content="0; url=saiten-search.html"></noscript>
 <style>
-  html,body{margin:0;height:100%;background:#182430;color:#e8eaec;
-    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;}
-  .box{height:100%;display:flex;flex-direction:column;align-items:center;
-    justify-content:center;gap:18px;text-align:center;padding:20px;}
-  .eyebrow{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.42em;
-    color:#a297cf;text-transform:uppercase;}
-  .msg{font-family:ui-monospace,monospace;font-size:13px;color:#98a8b8;letter-spacing:.08em;}
-  a{display:inline-block;margin-top:6px;font-family:ui-monospace,monospace;font-size:13px;
-    letter-spacing:.1em;text-decoration:none;color:#182430;background:#6fb9ba;
-    padding:11px 22px;border-radius:3px;font-weight:700;}
-  a:hover{background:#cfa87a;}
+  html,body{margin:0;height:100%;background:#17153a;color:#ffffff;
+    font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;}
+  .box{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:20px;}
+  .brand{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:22px;letter-spacing:.06em;}
+  .msg{font-size:13px;color:#b9b6dd;letter-spacing:.08em;}
+  a{display:inline-block;font-size:14px;text-decoration:none;color:#17153a;background:#4fc4b6;
+    padding:12px 22px;border-radius:999px;font-weight:700;}
+  a:hover{background:#c6e05b;}
 </style>
 </head>
 <body>
   <div class="box">
-    <p class="eyebrow">MAG CoP</p>
+    <p class="brand">MAG CoP</p>
     <p class="msg">検索ページへ移動中…</p>
     <a href="saiten-search.html">自動で移動しない場合はこちら →</a>
   </div>

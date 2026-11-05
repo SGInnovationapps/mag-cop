@@ -2,167 +2,113 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>MAG CoP — 動画一覧</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#182430">
+<meta name="theme-color" content="#1f1c46">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MAG CoP">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
+<link rel="stylesheet" href="theme.css">
 <script src="pwa.js" defer></script>
-
 <style>
-  :root{
-    --bg:#182430;
-    --panel:#20303f;
-    --panel-2:#26394a;
-    --line:#36495c;
-    --line-bright:#4a6076;
-    --txt:#e8eaec;
-    --txt-dim:#98a8b8;
-    --txt-faint:#66798c;
-    --green:#6fb9ba;
-    --purple:#a297cf;
-    --yellow:#cfa87a;
-    --yellow-dim:rgba(207,168,122,.18);
+  main.container{display:flex;flex-direction:column;gap:22px;}
+
+  /* ===== 種目フィルタ ===== */
+  .filters{display:flex;gap:10px;flex-wrap:wrap;}
+  .filters button{
+    font-family:var(--font-jp);font-size:14px;font-weight:500;cursor:pointer;
+    display:flex;align-items:center;gap:8px;
+    padding:11px 20px;min-height:44px;border-radius:999px;
+    border:1.5px solid var(--pill-line);background:transparent;color:var(--txt-soft);
+    transition:border-color .15s,background .15s,color .15s;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--bg);color:var(--txt);
-    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
-    line-height:1.6;-webkit-font-smoothing:antialiased;
-  }
-  .mono{font-family:ui-monospace,"SF Mono","Roboto Mono",Menlo,Consolas,monospace;}
-  .wrap{max-width:980px;margin:0 auto;padding:0 20px 100px;}
+  .filters button:hover{border-color:var(--teal);color:var(--txt);}
+  .filters button .n{font-family:var(--font-en);color:var(--lime);}
+  .filters button[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--bg);font-weight:700;}
+  .filters button[aria-pressed="true"] .n{color:var(--bg);}
 
-  .topbar{
-    display:flex;align-items:center;gap:18px;
-    border-bottom:1px solid var(--line);padding:14px 0;
-    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.18em;
-    color:var(--txt-dim);text-transform:uppercase;
-  }
-  .topbar .live{display:flex;align-items:center;gap:7px;color:var(--green);}
-  .topbar .live::before{content:"";width:7px;height:7px;border-radius:50%;
-    background:var(--green);}
-  .topbar .sep{flex:1;height:1px;background:var(--line);}
-
-  header{padding:30px 0 22px;}
-  .eyebrow{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.42em;
-    color:var(--purple);text-transform:uppercase;margin:0 0 12px;}
-  h1{font-size:38px;font-weight:800;margin:0;letter-spacing:.01em;line-height:1.1;}
-  h1 .h1-small{font-size:17px;font-weight:600;color:var(--txt-dim);letter-spacing:.06em;}
-  h1 .slash{color:var(--yellow);font-weight:400;}
-  .sub{color:var(--txt-dim);font-size:13px;margin:10px 0 0;letter-spacing:.04em;}
-
-  .nav{display:flex;gap:0;margin-top:22px;border-bottom:1px solid var(--line);}
-  .nav a{font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.18em;
-    text-transform:uppercase;text-decoration:none;color:var(--txt-dim);
-    padding:11px 20px;border-bottom:2px solid transparent;margin-bottom:-1px;
-    transition:color .15s,border-color .15s,background .15s;}
-  .nav a:hover{color:var(--txt);background:var(--panel);}
-  .nav a.here{color:var(--bg);background:var(--green);border-bottom-color:var(--green);font-weight:700;}
-
-  /* ===== apparatus group ===== */
-  .group-head{
-    display:flex;align-items:center;gap:12px;
-    margin:34px 0 14px;font-family:ui-monospace,monospace;
-    font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--purple);
-  }
-  .group-head .cnt{color:var(--txt-faint);letter-spacing:.1em;}
-  .group-head::after{content:"";flex:1;height:1px;background:var(--line);}
-
-  .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-  @media(max-width:760px){.vgrid{grid-template-columns:repeat(2,1fr);}}
-  @media(max-width:480px){.vgrid{grid-template-columns:1fr;}}
-
-  .vcard{
-    background:var(--panel);border:1px solid var(--line);border-radius:4px;
-    overflow:hidden;text-decoration:none;color:var(--txt);
-    display:flex;flex-direction:column;
-    transition:border-color .15s,transform .12s;
-  }
-  .vcard:hover{border-color:var(--yellow);transform:translateY(-2px);}
-  .thumb{position:relative;aspect-ratio:16/9;background:var(--panel-2);overflow:hidden;}
-  .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  /* ===== 動画カード ===== */
+  .group{display:flex;flex-direction:column;gap:16px;padding-top:14px;}
+  .group[hidden]{display:none;}
+  .group .sec-head .label{font-size:20px;}
+  .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+  .vcard{background:var(--panel);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+  .thumb{position:relative;display:block;aspect-ratio:16/9;background:var(--panel-2);overflow:hidden;}
+  .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
   .thumb .play{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    opacity:0;transition:opacity .15s;background:rgba(15,20,25,.45);
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:56px;height:56px;border-radius:50%;background:var(--lime);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 18px rgba(23,21,58,.45);transition:transform .15s;
   }
-  .vcard:hover .play{opacity:1;}
-  .thumb .play span{
-    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.2em;
-    color:var(--bg);background:var(--yellow);padding:7px 14px;border-radius:3px;font-weight:700;
-  }
-  .vmeta{padding:10px 12px 12px;display:flex;flex-direction:column;gap:5px;}
-  .vno{font-family:ui-monospace,monospace;font-size:11px;color:var(--green);letter-spacing:.1em;}
-  .vsrc{font-family:ui-monospace,monospace;font-size:10px;color:var(--txt-faint);letter-spacing:.05em;}
-  .vsrc a{color:var(--txt-dim);text-decoration:none;}
-  .vsrc a:hover{color:var(--yellow);text-decoration:underline;}
+  .thumb .play svg{width:22px;height:22px;margin-left:3px;fill:var(--bg);}
+  .thumb:hover .play{transform:translate(-50%,-50%) scale(1.08);}
+  .vmeta{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;}
+  .vtitle{font-size:15px;font-weight:700;color:var(--txt);text-decoration:none;}
+  .vtitle:hover{color:var(--lime);}
+  .vsrc{font-family:var(--font-en);font-size:12px;color:var(--txt-faint);}
+  .vsrc a{color:var(--txt-dim);}
+  .vsrc a:hover{color:var(--lime);}
 
-  .loading,.err{padding:70px 20px;text-align:center;color:var(--txt-dim);
-    font-family:ui-monospace,monospace;font-size:13px;letter-spacing:.08em;}
-  .loading .big,.err .big{font-size:30px;color:var(--line-bright);margin-bottom:16px;letter-spacing:.3em;}
-  .err .accent{color:var(--purple);}
-
-  footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;
-    font-family:ui-monospace,monospace;font-size:11px;color:var(--txt-faint);
-    letter-spacing:.06em;line-height:1.9;}
-
-  @media(max-width:560px){
-    h1{font-size:28px;}
-    .topbar{gap:10px;font-size:10px;flex-wrap:wrap;}
-    .nav a{padding:11px 13px;letter-spacing:.1em;}
-  }
-  @media(prefers-reduced-motion:reduce){
-    .vcard{transition:none;}
+  @media(max-width:600px){
+    .filters{gap:8px;}
+    .filters button{padding:9px 14px;font-size:13px;}
+    .vgrid{grid-template-columns:1fr;}
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="topbar mono">
-    <span class="live">Video Index</span>
-    <span class="sep"></span>
-    <span>情報33号 · MAG</span>
-  </div>
-
-  <header>
-    <p class="eyebrow">MAG CoP</p>
-    <h1><span class="h1-small">体操競技男子</span> <span class="slash">/</span> 動画一覧</h1>
-    <p class="sub">男子体操競技情報33号に掲載された解説動画（YouTube）。カードをクリックで再生、出典から該当PDFページを開けます。</p>
-    <nav class="nav">
-      <a href="saiten-search.html">検索</a>
-      <a href="pdf-list.html">PDF一覧</a>
-      <a class="here">動画</a>
-      <a href="kitei.html">小学生規定演技</a>
+<header class="site-head">
+  <div class="container">
+    <div class="brand-row">
+      <div class="brand"><b>MAG CoP</b><span>Code of Points Search</span></div>
+      <span class="brand-meta">情報33号 · <span id="vidCount">—</span>本</span>
+    </div>
+    <div class="title">
+      <span class="kicker">体操競技男子</span>
+      <h1>動画一覧</h1>
+    </div>
+    <nav class="tabs" aria-label="ページ切り替え">
+      <a href="saiten-search.html" data-nav>検索</a>
+      <a href="pdf-list.html" data-nav>PDF<span class="long">一覧</span></a>
+      <a href="videos.html" data-nav aria-current="page">動画</a>
+      <a href="kitei.html" data-nav class="wide"><span class="long">小学生</span>規定演技</a>
     </nav>
-  </header>
+  </div>
+</header>
 
-  <div id="list"><div class="loading mono"><div class="big">· · ·</div>動画リストを読み込み中…</div></div>
+<main class="container">
+  <div class="filters" id="filters" role="group" aria-label="種目で絞り込み"></div>
 
-  <footer>
-    収録 <span id="vidCount"></span> 本 · 出典：男子体操競技情報33号（日本体操協会） · リストの更新は videos_info33.json を差し替え
+  <div id="list"><div class="state"><div class="big">· · ·</div>動画リストを読み込み中…</div></div>
+
+  <footer class="site-foot">
+    <span>出典：男子体操競技情報33号（日本体操協会）</span>
+    <span>サムネイルをタップでYouTube再生</span>
   </footer>
-</div>
+</main>
 
 <script>
-function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function ytid(url){
   const m = url.match(/[?&]v=([\w-]{6,})/) || url.match(/youtu\.be\/([\w-]{6,})/);
   return m ? m[1] : null;
 }
 const ORDER = ['ゆか','あん馬','つり輪','跳馬','平行棒','鉄棒',
                '採点規則修正・追加情報','タイ・ブレイク','2026年度国内内規','マナー・モラル'];
+const PLAY = `<span class="play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg></span>`;
 
 fetch('videos_info33.json')
   .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
   .then(videos=>{
     document.getElementById('vidCount').textContent = videos.length;
-    // group by apparatus, keep ORDER
     const groups = new Map();
     for(const v of videos){
       if(!groups.has(v.apparatus)) groups.set(v.apparatus, []);
@@ -172,32 +118,46 @@ fetch('videos_info33.json')
       const ia=ORDER.indexOf(a), ib=ORDER.indexOf(b);
       return (ia<0?99:ia)-(ib<0?99:ib);
     });
-    let html='';
-    for(const k of keys){
+
+    // 種目フィルタ
+    document.getElementById('filters').innerHTML =
+      `<button type="button" data-k="" aria-pressed="true">すべて</button>` +
+      keys.map(k=>`<button type="button" data-k="${esc(k)}" aria-pressed="false">${esc(k)} <span class="n">${groups.get(k).length}</span></button>`).join('');
+
+    // 種目ごとのカード
+    document.getElementById('list').innerHTML = keys.map(k=>{
       const vs = groups.get(k);
-      html += `<div class="group-head mono">${esc(k)} <span class="cnt">— ${vs.length}本</span></div>`;
-      html += `<div class="vgrid">` + vs.map((v,i)=>{
+      const cards = vs.map((v,i)=>{
         const id = ytid(v.url);
-        const thumb = id ? `<img src="https://img.youtube.com/vi/${esc(id)}/mqdefault.jpg" alt="" loading="lazy">` : '';
+        const label = `${k} · 動画 ${String(i+1).padStart(2,'0')}`;
+        const img = id ? `<img src="https://img.youtube.com/vi/${esc(id)}/mqdefault.jpg" alt="" loading="lazy">` : '';
         return `
-        <a class="vcard" href="${esc(v.url)}" target="_blank" rel="noopener">
-          <div class="thumb">${thumb}<div class="play"><span>▶ PLAY</span></div></div>
-          <div class="vmeta">
-            <span class="vno mono">${esc(k)} · 動画 ${String(i+1).padStart(2,'0')}</span>
-            <span class="vsrc mono">出典:
-              <a href="${esc(v.file)}#page=${v.page}" target="_blank" rel="noopener"
-                 onclick="event.stopPropagation()">${esc(v.file.split('/').pop())} p.${v.page}</a>
-            </span>
-          </div>
-        </a>`;
-      }).join('') + `</div>`;
-    }
-    document.getElementById('list').innerHTML = html;
+          <article class="vcard">
+            <a class="thumb" href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="${esc(label)}を再生">${img}${PLAY}</a>
+            <div class="vmeta">
+              <a class="vtitle" href="${esc(v.url)}" target="_blank" rel="noopener">${esc(label)}</a>
+              <span class="vsrc">出典: <a href="${esc(v.file)}#page=${v.page}" target="_blank" rel="noopener">${esc(v.file.split('/').pop())} p.${v.page}</a></span>
+            </div>
+          </article>`;
+      }).join('');
+      return `
+        <section class="group" data-k="${esc(k)}">
+          <h2 class="sec-head"><span class="label">${esc(k)}</span><span class="cnt">${vs.length}本</span></h2>
+          <div class="vgrid">${cards}</div>
+        </section>`;
+    }).join('');
+
+    document.getElementById('filters').addEventListener('click', e=>{
+      const btn = e.target.closest('button'); if(!btn) return;
+      const k = btn.dataset.k;
+      document.querySelectorAll('#filters button').forEach(b=>b.setAttribute('aria-pressed', b===btn?'true':'false'));
+      document.querySelectorAll('#list .group').forEach(g=>{ g.hidden = !!k && g.dataset.k !== k; });
+    });
   })
   .catch(err=>{
     document.getElementById('list').innerHTML =
-      `<div class="err mono"><div class="big">LOAD ERROR</div>`+
-      `videos_info33.json を読み込めません（${esc(String(err.message))}）<br>`+
+      `<div class="state"><div class="big">LOAD ERROR</div>`+
+      `videos_info33.json を読み込めません（${esc(err.message)}）<br>`+
       `<span class="accent">file:// 直開きは不可</span> — python3 -m http.server か GitHub Pages で開いてください</div>`;
   });
 </script>

@@ -2,148 +2,83 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>MAG CoP — PDF一覧</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#182430">
+<meta name="theme-color" content="#1f1c46">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MAG CoP">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
+<link rel="stylesheet" href="theme.css">
 <script src="pwa.js" defer></script>
-
 <style>
-  :root{
-    --bg:#182430;
-    --panel:#20303f;
-    --panel-2:#26394a;
-    --line:#36495c;
-    --line-bright:#4a6076;
-    --txt:#e8eaec;
-    --txt-dim:#98a8b8;
-    --txt-faint:#66798c;
-    --green:#6fb9ba;
-    --purple:#a297cf;
-    --yellow:#cfa87a;
-    --yellow-dim:rgba(207,168,122,.18);
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--bg);color:var(--txt);
-    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
-    line-height:1.6;-webkit-font-smoothing:antialiased;
-  }
-  .wrap{max-width:980px;margin:0 auto;padding:0 20px 100px;}
-
-  .topbar{
-    display:flex;align-items:center;gap:18px;
-    border-bottom:1px solid var(--line);padding:14px 0;
-    font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.18em;
-    color:var(--txt-dim);text-transform:uppercase;
-  }
-  .topbar .live{display:flex;align-items:center;gap:7px;color:var(--green);}
-  .topbar .live::before{content:"";width:7px;height:7px;border-radius:50%;
-    background:var(--green);}
-  .topbar .sep{flex:1;height:1px;background:var(--line);}
-
-  header{padding:30px 0 22px;}
-  .eyebrow{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.42em;
-    color:var(--purple);text-transform:uppercase;margin:0 0 12px;}
-  h1{font-size:38px;font-weight:800;margin:0;letter-spacing:.01em;line-height:1.1;}
-  h1 .h1-small{font-size:17px;font-weight:600;color:var(--txt-dim);letter-spacing:.06em;}
-  h1 .slash{color:var(--yellow);font-weight:400;}
-  .sub{color:var(--txt-dim);font-size:13px;margin:10px 0 0;letter-spacing:.04em;}
-
-  .nav{display:flex;gap:0;margin-top:22px;border-bottom:1px solid var(--line);}
-  .nav a{font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.18em;
-    text-transform:uppercase;text-decoration:none;color:var(--txt-dim);
-    padding:11px 20px;border-bottom:2px solid transparent;margin-bottom:-1px;
-    transition:color .15s,border-color .15s,background .15s;}
-  .nav a:hover{color:var(--txt);background:var(--panel);}
-  .nav a.here{color:var(--bg);background:var(--green);border-bottom-color:var(--green);font-weight:700;}
-
-  /* apparatus grid */
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:26px;}
-  .lib-divider{
-    grid-column:1 / -1;display:flex;align-items:center;gap:12px;
-    margin-top:10px;font-family:ui-monospace,monospace;
-    font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--purple);
-  }
-  .lib-divider::after{content:"";flex:1;height:1px;background:var(--line);}
-  .app{background:var(--panel);border:1px solid var(--line);border-radius:4px;
-    overflow:hidden;display:flex;flex-direction:column;}
-  .app-head{display:flex;align-items:center;gap:12px;padding:13px 15px;
-    border-bottom:1px solid var(--line);background:var(--panel-2);}
-  .pos{font-family:ui-monospace,monospace;font-weight:700;font-size:13px;
-    color:var(--bg);background:var(--purple);width:26px;height:26px;flex:0 0 26px;
-    display:flex;align-items:center;justify-content:center;border-radius:2px;}
-  .app-name{font-size:18px;font-weight:700;letter-spacing:.04em;margin:0;}
-  .app-en{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.18em;
-    color:var(--txt-faint);text-transform:uppercase;margin-left:auto;}
-
-  ul.docs{list-style:none;margin:0;padding:0;flex:1;}
-  li.doc{border-bottom:1px solid var(--line);}
-  li.doc:last-child{border-bottom:none;}
-  li.doc a{display:grid;grid-template-columns:20px 1fr auto;gap:11px;align-items:center;
-    padding:12px 15px;text-decoration:none;color:var(--txt);
-    transition:background .12s,padding-left .12s;}
-  li.doc a:hover{background:var(--panel-2);padding-left:21px;}
-  .doc-ic{width:15px;height:18px;stroke:var(--green);fill:none;}
-  .doc-title{font-size:14px;min-width:0;line-height:1.4;}
-  .doc-sub{font-family:ui-monospace,monospace;font-size:10px;color:var(--txt-faint);
-    display:block;margin-top:2px;letter-spacing:.06em;}
-  .doc-go{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.12em;
-    color:var(--txt-faint);white-space:nowrap;}
-  li.doc a:hover .doc-go{color:var(--yellow);}
-  li.doc a:hover .doc-ic{stroke:var(--yellow);}
-  .empty-note{font-family:ui-monospace,monospace;font-size:11px;color:var(--txt-faint);
-    padding:14px 15px;letter-spacing:.06em;}
-
-  footer{margin-top:36px;border-top:1px solid var(--line);padding-top:18px;
-    font-family:ui-monospace,monospace;font-size:11px;color:var(--txt-faint);
-    letter-spacing:.06em;line-height:1.9;}
-
-  @media(max-width:720px){.grid{grid-template-columns:1fr;}}
-  @media(max-width:560px){
-    h1{font-size:28px;}
-    .topbar{gap:10px;font-size:10px;flex-wrap:wrap;}
-    .nav a{padding:11px 13px;letter-spacing:.1em;}
-    .app-en{display:none;}
-  }
-  @media(prefers-reduced-motion:reduce){
-    li.doc a{transition:none;}
+  main.container{display:flex;flex-direction:column;gap:22px;}
+  .sec-head.later{padding-top:22px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;align-items:start;}
+  .card{background:var(--panel);border-radius:14px;overflow:hidden;}
+  .card.full{grid-column:1 / -1;}
+  .card-head{display:flex;align-items:center;gap:12px;padding:16px 20px;background:var(--panel-2);}
+  .card-head h3{margin:0;font-size:18px;font-weight:700;letter-spacing:.04em;}
+  .card-head .en-label{margin-left:auto;font-family:var(--font-en);font-size:11px;letter-spacing:.2em;color:var(--txt-faint);text-transform:uppercase;}
+  .card-head .jump{margin-left:auto;font-size:12px;text-decoration:none;}
+  .docs{list-style:none;margin:0;padding:0;}
+  .card.full .docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));}
+  .docs li + li{border-top:1px solid var(--line-soft);}
+  .card.full .docs li{border-top:1px solid var(--line-soft);}
+  .doc{display:flex;align-items:center;gap:14px;padding:15px 20px;min-height:44px;text-decoration:none;color:var(--txt);transition:background .12s;}
+  .doc:hover{background:var(--panel-2);color:var(--txt);}
+  .doc-text{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;}
+  .doc-title{font-size:15px;}
+  .doc-sub{font-size:12px;color:var(--txt-faint);}
+  .doc-sub.video{color:var(--lime);}
+  .doc-go{font-family:var(--font-en);font-size:12px;color:var(--txt-faint);letter-spacing:.1em;white-space:nowrap;}
+  .doc:hover .doc-go{color:var(--lime);}
+  .doc:hover .doc-ic{stroke:var(--lime);}
+  @media(max-width:600px){
+    .grid{grid-template-columns:1fr;}
+    .card.full .docs{grid-template-columns:1fr;}
+    .card-head .en-label{display:none;}
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="topbar mono">
-    <span class="live">Library Online</span>
-    <span class="sep"></span>
-    <span>国際 + 国内 · MAG</span>
-  </div>
-
-  <header>
-    <p class="eyebrow">MAG CoP</p>
-    <h1><span class="h1-small">体操競技男子</span> <span class="slash">/</span> PDF一覧</h1>
-    <p class="sub">種目別の採点規則PDF。各項目をクリックすると別タブで開きます。</p>
-    <nav class="nav">
-      <a href="saiten-search.html">検索</a>
-      <a class="here">PDF一覧</a>
-      <a href="videos.html">動画</a>
-      <a href="kitei.html">小学生規定演技</a>
+<header class="site-head">
+  <div class="container">
+    <div class="brand-row">
+      <div class="brand"><b>MAG CoP</b><span>Code of Points Search</span></div>
+      <span class="brand-meta">国際 ＋ 国内 · <span id="docCount">—</span> PDF</span>
+    </div>
+    <div class="title">
+      <span class="kicker">体操競技男子</span>
+      <h1>PDF一覧</h1>
+    </div>
+    <nav class="tabs" aria-label="ページ切り替え">
+      <a href="saiten-search.html" data-nav>検索</a>
+      <a href="pdf-list.html" data-nav aria-current="page">PDF<span class="long">一覧</span></a>
+      <a href="videos.html" data-nav>動画</a>
+      <a href="kitei.html" data-nav class="wide"><span class="long">小学生</span>規定演技</a>
     </nav>
-  </header>
+  </div>
+</header>
 
-  <div class="grid" id="library"></div>
+<main class="container">
+  <h2 class="sec-head"><span class="tag">INTERNATIONAL</span><span class="label">国際ルール — FIG CoP 2025</span></h2>
+  <div class="grid" id="intl"></div>
 
-  <footer>
-    種目ごとに分割したPDFを開く運用 · 差し替えは pdf-list.html の APPARATUS / GENERAL を編集 · PDFは pdfs/ に配置
+  <h2 class="sec-head later"><span class="tag lime">DOMESTIC</span><span class="label">国内ルール — 日本体操協会</span></h2>
+  <div class="grid" id="jp"></div>
+
+  <footer class="site-foot">
+    <span>PDFは別タブで開きます</span>
+    <span>差し替えは pdf-list.html の各配列を編集</span>
   </footer>
-</div>
+</main>
 
 <script>
 /* 種目ごとに分割した独立PDFを開く運用。
@@ -169,7 +104,7 @@ const APPARATUS = [
   ]},
 ];
 
-// 種目章以外の主要セクション（先頭に表示）
+// 種目章以外の主要セクション（先頭に横長で表示）
 const GENERAL = [
   {name:"一般・実施", en:"General", docs:[
     {title:"競技参加者規則・演技の評価", sub:"第1〜9章", file:"pdfs/GEN_CoP_2025.pdf"},
@@ -193,15 +128,15 @@ const DOMESTIC = [
     {title:"2026年度 国内内規", sub:"国内対応", file:"pdfs_jp/JP_Info33_09_naiki.pdf"},
     {title:"マナー・モラルについて", sub:"競技会運営", file:"pdfs_jp/JP_Info33_10_manner.pdf"},
   ]},
-  {name:"情報33号 · 種目別確認事項", en:"Info 33 / Apparatus", docs:[
-    {title:"ゆか 確認事項・FIG通達", sub:"動画リンクあり", file:"pdfs_jp/JP_Info33_02_FX.pdf"},
-    {title:"あん馬 確認事項・FIG通達", sub:"動画リンクあり", file:"pdfs_jp/JP_Info33_03_PH.pdf"},
-    {title:"つり輪 確認事項・FIG通達", sub:"動画リンクあり", file:"pdfs_jp/JP_Info33_04_SR.pdf"},
-    {title:"跳馬 確認事項", sub:"", file:"pdfs_jp/JP_Info33_05_VT.pdf"},
-    {title:"平行棒 確認事項・FIG通達", sub:"動画リンクあり", file:"pdfs_jp/JP_Info33_06_PB.pdf"},
-    {title:"鉄棒 確認事項・FIG通達", sub:"動画リンクあり", file:"pdfs_jp/JP_Info33_07_HB.pdf"},
+  {name:"情報33号 · 種目別確認事項", en:"Info 33", docs:[
+    {title:"ゆか 確認事項・FIG通達", sub:"動画リンクあり", video:true, file:"pdfs_jp/JP_Info33_02_FX.pdf"},
+    {title:"あん馬 確認事項・FIG通達", sub:"動画リンクあり", video:true, file:"pdfs_jp/JP_Info33_03_PH.pdf"},
+    {title:"つり輪 確認事項・FIG通達", sub:"動画リンクあり", video:true, file:"pdfs_jp/JP_Info33_04_SR.pdf"},
+    {title:"跳馬 確認事項", sub:"情報33号", file:"pdfs_jp/JP_Info33_05_VT.pdf"},
+    {title:"平行棒 確認事項・FIG通達", sub:"動画リンクあり", video:true, file:"pdfs_jp/JP_Info33_06_PB.pdf"},
+    {title:"鉄棒 確認事項・FIG通達", sub:"動画リンクあり", video:true, file:"pdfs_jp/JP_Info33_07_HB.pdf"},
   ]},
-  {name:"小学生規定演技", en:"Compulsory 2022", docs:[
+  {name:"小学生規定演技", en:"Compulsory 2022", jump:"kitei.html", docs:[
     {title:"総則（採点・器械器具・発刊によせて）", sub:"2022年度版 小学生適用", file:"pdfs_jp/JP_Kitei2022_00_general.pdf"},
     {title:"ゆか 規定演技", sub:"解説・減点表", file:"pdfs_jp/JP_Kitei2022_FX.pdf"},
     {title:"あん馬 規定演技（規定１・２）", sub:"解説・減点表", file:"pdfs_jp/JP_Kitei2022_PH.pdf"},
@@ -212,42 +147,39 @@ const DOMESTIC = [
   ]},
 ];
 
-function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-const fileIcon=`<svg class="doc-ic" viewBox="0 0 24 24" stroke-width="1.6" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/></svg>`;
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+const fileIcon=`<svg class="doc-ic" viewBox="0 0 24 24" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4"/></svg>`;
 
-// d.page があれば PDF#page=N、d.file があればそのまま（将来の分割運用にも対応）
-function hrefFor(d){
-  if(d.page) return `${esc(PDF)}#page=${d.page}`;
-  if(d.file) return esc(d.file);
-  return esc(PDF);
-}
-function renderSection(a, label){
-  const items=a.docs.length
-    ? a.docs.map(d=>`
-        <li class="doc"><a href="${hrefFor(d)}" target="_blank" rel="noopener">
-          ${fileIcon}
-          <span class="doc-title">${esc(d.title)}<span class="doc-sub">${esc(d.sub||'')}</span></span>
-          <span class="doc-go">OPEN ↗</span>
-        </a></li>`).join('')
-    : `<div class="empty-note">NO FILE</div>`;
+function card(sec, badge, opt){
+  opt = opt || {};
+  const docs = sec.docs.map(d=>`
+    <li><a class="doc" href="${esc(d.file)}" target="_blank" rel="noopener">
+      ${fileIcon}
+      <span class="doc-text"><span class="doc-title">${esc(d.title)}</span><span class="doc-sub${d.video?' video':''}">${esc(d.sub||'')}</span></span>
+      <span class="doc-go">開く ↗</span>
+    </a></li>`).join('');
+  const right = sec.jump
+    ? `<a class="jump" href="${esc(sec.jump)}" data-nav>動画付きページへ →</a>`
+    : `<span class="en-label">${esc(sec.en)}</span>`;
   return `
-    <section class="app">
-      <div class="app-head">
-        <span class="pos mono">${label}</span>
-        <h2 class="app-name">${esc(a.name)}</h2>
-        <span class="app-en">${esc(a.en)}</span>
+    <section class="card${opt.full?' full':''}">
+      <div class="card-head">
+        <span class="badge${opt.teal?' teal':''}${badge==='JP'?' sm':''}">${esc(badge)}</span>
+        <h3>${esc(sec.name)}</h3>
+        ${right}
       </div>
-      <ul class="docs">${items}</ul>
+      <ul class="docs">${docs}</ul>
     </section>`;
 }
 
-document.getElementById('library').innerHTML =
-  `<div class="lib-divider mono">国際ルール — FIG CoP 2025</div>` +
-  GENERAL.map(a=>renderSection(a,'§')).join('') +
-  APPARATUS.map((a,i)=>renderSection(a,String(i+1).padStart(2,'0'))).join('') +
-  `<div class="lib-divider mono">国内ルール — 日本体操協会</div>` +
-  DOMESTIC.map(a=>renderSection(a,'JP')).join('');
+document.getElementById('intl').innerHTML =
+  GENERAL.map(s=>card(s,'§',{teal:true,full:true})).join('') +
+  APPARATUS.map((s,i)=>card(s,String(i+1).padStart(2,'0'))).join('');
+document.getElementById('jp').innerHTML =
+  DOMESTIC.map(s=>card(s,'JP',{teal:true})).join('');
 
+const total = [...GENERAL,...APPARATUS,...DOMESTIC].reduce((n,s)=>n+s.docs.length,0);
+document.getElementById('docCount').textContent = total;
 </script>
 </body>
 </html>
