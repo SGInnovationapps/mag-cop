@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
 <link rel="stylesheet" href="theme.css">
 <script src="pwa.js" defer></script>
+<script src="pdfview.js" defer></script>
 <style>
   /* ===== 検索欄（スクロールしても上に残る） ===== */
   .search-zone{
@@ -137,7 +138,7 @@
 
   <footer class="site-foot">
     <span>検索は端末内で完結（外部送信なし）</span>
-    <span>カードをタップで該当ページを開く</span>
+    <span>カードをタップで該当ページを開く（戻るで結果に戻る）</span>
   </footer>
 </main>
 
@@ -206,7 +207,7 @@ function hitHTML(h, terms){
   const jp = h.file.startsWith('pdfs_jp/') ? ' jp' : '';
   return `
     <li>
-      <a class="hit-link${jp}" href="${esc(h.file)}#page=${h.page}" target="_blank" rel="noopener">
+      <a class="hit-link${jp}" href="${esc(h.file)}#page=${h.page}" data-q="${esc(terms.join(' '))}" target="_blank" rel="noopener">
         <span class="page-cell">
           <span class="lab">PAGE</span>
           <span class="num">${String(h.page).padStart(2,'0')}</span>

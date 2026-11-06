@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
 <link rel="stylesheet" href="theme.css">
 <script src="pwa.js" defer></script>
+<script src="pdfview.js" defer></script>
 <style>
   main.container{display:flex;flex-direction:column;gap:22px;}
   .sec-head.later{padding-top:22px;}
@@ -115,12 +116,15 @@ const GENERAL = [
 /* ===== 国内ルール（日本体操協会 適用規則ほか） ===== */
 const DOMESTIC = [
   {name:"年代別 適用規則", en:"Age Group", docs:[
-    {title:"U-12 男子適用規則", sub:"2025年版", file:"pdfs_jp/JP_U12_rules_2025.pdf"},
+    {title:"U-12 男子適用規則", sub:"2025年版（2026.9.1修正版）", file:"pdfs_jp/JP_U12_rules_2025.pdf"},
     {title:"U-12 跳馬価値点一覧表", sub:"2025年版", file:"pdfs_jp/JP_U12_VT_values_2025.pdf"},
-    {title:"U-15 男子適用規則", sub:"2025年版（2025.01更新）", file:"pdfs_jp/JP_U15_rules_2025.pdf"},
+    {title:"U-15 男子適用規則", sub:"2025年版（2026.9.1修正版）", file:"pdfs_jp/JP_U15_rules_2025.pdf"},
     {title:"U-15 跳馬価値点一覧表", sub:"2025年版", file:"pdfs_jp/JP_U15_VT_values_2025.pdf"},
     {title:"高等学校男子適用規則", sub:"2026年版", file:"pdfs_jp/JP_HS_rules_2026.pdf"},
     {title:"マスターズ適用規則", sub:"2025年4月更新版", file:"pdfs_jp/JP_Masters_rules_2025.pdf"},
+  ]},
+  {name:"FIG ニュースレター", en:"Newsletter", docs:[
+    {title:"ニュースレター No.4 国内適用", sub:"2026年8月1日 · 動画リンクあり", video:true, file:"pdfs_jp/JP_FIG_NL4_2026.pdf"},
   ]},
   {name:"情報33号 · 規則修正", en:"Info 33", docs:[
     {title:"採点規則修正・追加情報", sub:"FIG NL反映 2025年版", file:"pdfs_jp/JP_Info33_01_kaitei.pdf"},

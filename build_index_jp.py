@@ -23,6 +23,7 @@ ORDER = [
     "JP_U15_VT_values_2025.pdf",
     "JP_HS_rules_2026.pdf",
     "JP_Masters_rules_2025.pdf",
+    "JP_FIG_NL4_2026.pdf",
     "JP_Info33_01_kaitei.pdf",
     "JP_Info33_02_FX.pdf",
     "JP_Info33_03_PH.pdf",

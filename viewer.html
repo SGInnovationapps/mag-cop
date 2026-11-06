@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MAG CoP — PDFビューア</title>
+<meta name="theme-color" content="#1f1c46">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="pdfjs/pdf_viewer.css">
+<style>
+  html,body{height:100%;overflow:hidden;}
+  body{background:var(--bg);}
+  :root{--bar-h:56px;--foot-h:60px;}
+
+  /* ===== 上下のバー ===== */
+  .vbar{
+    position:fixed;left:0;right:0;z-index:5;background:var(--header);
+    display:flex;align-items:center;gap:10px;padding:0 12px;
+  }
+  .vbar.top{top:0;height:calc(var(--bar-h) + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);border-bottom:1px solid var(--line);}
+  .vbar.bottom{bottom:0;height:calc(var(--foot-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);border-top:1px solid var(--line);justify-content:center;flex-wrap:nowrap;}
+  .vbtn{
+    font-family:var(--font-jp);font-size:13px;font-weight:500;color:var(--txt-soft);
+    background:transparent;border:1.5px solid var(--pill-line);border-radius:999px;
+    min-width:44px;height:44px;padding:0 14px;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;white-space:nowrap;
+    transition:border-color .15s,color .15s,background .15s;
+  }
+  .vbtn:hover{border-color:var(--teal);color:var(--txt);}
+  .vbtn:disabled{opacity:.4;cursor:default;}
+  .vbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .vbtn.icon{padding:0;}
+  .vbtn.close{border-color:transparent;font-weight:700;color:var(--txt);}
+  .vbtn.close:hover{background:var(--panel-2);}
+  .vtitle{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3;}
+  .vtitle b{font-family:var(--font-en);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .vtitle span{font-size:11px;color:var(--txt-faint);}
+  .pageno{font-family:var(--font-en);font-size:14px;color:var(--txt-dim);white-space:nowrap;}
+  .pageno strong{color:var(--teal);font-size:18px;}
+  .sep{width:1px;height:28px;background:var(--line);margin:0 4px;flex:0 0 1px;}
+  .hitchip{display:none;align-items:center;gap:8px;font-size:13px;color:var(--txt-dim);}
+  .hitchip.on{display:inline-flex;}
+  .hitchip mark{background:var(--lime);color:var(--bg);padding:1px 6px;border-radius:4px;font-weight:700;}
+  .hitchip .n{font-family:var(--font-en);color:var(--lime);}
+
+  /* ===== PDF表示領域 ===== */
+  #viewerContainer{
+    position:absolute;left:0;right:0;
+    top:calc(var(--bar-h) + env(safe-area-inset-top));
+    bottom:calc(var(--foot-h) + env(safe-area-inset-bottom));
+    overflow:auto;background:var(--bg);
+    touch-action:pan-x pan-y;   /* ブラウザのピンチ拡大を止め、PDFの拡大縮小で処理する */
+    -webkit-overflow-scrolling:touch;
+  }
+  #viewer{transform-origin:0 0;}
+  .pdfViewer{--page-margin:12px auto;--page-border:0 solid transparent;}
+  .pdfViewer .page{box-shadow:0 6px 24px rgba(0,0,0,.35);border-radius:2px;}
+  .pdfViewer .textLayer .highlight{
+    --highlight-bg-color:rgb(198 224 91 / .5);           /* ライム：同じページの他のヒット */
+    --highlight-selected-bg-color:rgb(198 224 91 / .95);  /* 濃いライム：いま注目しているヒット */
+  }
+  .pdfViewer .textLayer .highlight.selected{outline:2px solid #4fc4b6;outline-offset:1px;}
+
+  .vstate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--txt-dim);font-size:14px;text-align:center;padding:24px;}
+  .vstate .big{font-family:var(--font-en);font-weight:700;font-size:22px;letter-spacing:.3em;color:var(--pill-line);}
+  .vstate[hidden]{display:none;}
+
+  @media(max-width:600px){
+    :root{--bar-h:52px;--foot-h:58px;}
+    .vbar.bottom{gap:6px;padding-left:8px;padding-right:8px;}
+    .vbtn{padding:0 10px;}
+    .vbtn .lbl{display:none;}
+    .sep{display:none;}
+    .hitchip .q{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="vbar top">
+  <button type="button" class="vbtn close" id="btnClose" aria-label="閉じて検索結果に戻る">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg><span class="lbl">閉じる</span>
+  </button>
+  <div class="vtitle"><b id="fileName">PDF</b><span id="fileSub">読み込み中…</span></div>
+  <div class="pageno" aria-live="polite"><strong id="pageNow">–</strong> / <span id="pageTotal">–</span></div>
+</header>
+
+<div id="viewerContainer" tabindex="0">
+  <div id="viewer" class="pdfViewer"></div>
+</div>
+<div class="vstate" id="vstate"><div class="big">· · ·</div><span>PDFを読み込み中…</span></div>
+
+<footer class="vbar bottom">
+  <button type="button" class="vbtn icon" id="btnPrev" aria-label="前のページ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <button type="button" class="vbtn icon" id="btnNext" aria-label="次のページ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+  <span class="sep"></span>
+  <button type="button" class="vbtn icon" id="btnOut" aria-label="縮小"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+  <button type="button" class="vbtn" id="btnFit" aria-label="幅に合わせる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg><span class="lbl">幅</span></button>
+  <button type="button" class="vbtn icon" id="btnIn" aria-label="拡大"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+  <span class="sep"></span>
+  <span class="hitchip" id="hitChip">
+    <span class="q"><mark id="hitQ"></mark></span>
+    <button type="button" class="vbtn" id="btnHit" aria-label="次のヒット箇所へ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><span><span class="n" id="hitN">0</span>件</span><span class="lbl">次のヒット</span></button>
+  </span>
+  <a class="vbtn icon" id="btnRaw" href="#" target="_blank" rel="noopener" aria-label="元のPDFファイルを開く"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M19 14v6H4V5h6"/></svg></a>
+</footer>
+
+<script type="module">
+/* MAG CoP PDFビューア（PDF.js 6.5.438 を pdfjs/ に同梱）
+   使い方: viewer.html?file=pdfs/FX_CoP_2025.pdf&page=7&q=減点
+   - アプリ内オーバーレイ（pdfview.js）から iframe で開かれる想定。単体でも動く。
+   - file は pdfs/ または pdfs_jp/ 配下の PDF のみ受け付ける。 */
+import * as pdfjsLib from './pdfjs/pdf.min.mjs';
+globalThis.pdfjsLib = pdfjsLib;
+const pdfjsViewer = await import('./pdfjs/pdf_viewer.mjs');
+pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.min.mjs';
+
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const file = params.get('file') || '';
+const startPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
+const terms = (params.get('q') || '').trim().split(/[\s　]+/).filter(Boolean);
+const embedded = window.parent !== window;
+
+function showState(big, msg){ const s=$('vstate'); s.hidden=false; s.querySelector('.big').textContent=big; s.querySelector('span').textContent=msg; }
+
+// ---- 閉じる（オーバーレイなら親に依頼、単体なら検索ページへ） ----
+function close(){
+  if(embedded){ parent.postMessage({type:'magcop-viewer-close'}, location.origin); }
+  else if(history.length > 1){ history.back(); }
+  else { location.replace('saiten-search.html'); }
+}
+$('btnClose').addEventListener('click', close);
+
+if(!/^pdfs(_jp)?\/[\w.\-]+\.pdf$/i.test(file)){
+  showState('ERROR', '開けないファイル指定です');
+  throw new Error('invalid file param');
+}
+$('fileName').textContent = file.split('/').pop();
+$('btnRaw').href = file;
+
+// ---- ビューア組み立て ----
+const container = $('viewerContainer');
+const eventBus = new pdfjsViewer.EventBus();
+const linkService = new pdfjsViewer.PDFLinkService({ eventBus, externalLinkTarget: pdfjsViewer.LinkTarget.BLANK });
+const findController = new pdfjsViewer.PDFFindController({ eventBus, linkService });
+const pdfViewer = new pdfjsViewer.PDFViewer({ container, viewer: $('viewer'), eventBus, linkService, findController });
+linkService.setViewer(pdfViewer);
+
+const fitValue = () => (container.clientWidth > 900 ? 'auto' : 'page-width');
+const ZMIN = 0.4, ZMAX = 5;
+
+function updatePageUI(n){
+  $('pageNow').textContent = n;
+  $('btnPrev').disabled = n <= 1;
+  $('btnNext').disabled = n >= pdfViewer.pagesCount;
+}
+// 狭い画面で横長（見開き）ページを開くときは、片側1ページ分が画面幅になるよう拡大する
+function initialScale(pageIdx){
+  pdfViewer.currentScaleValue = fitValue();
+  const pv = pdfViewer.getPageView(pageIdx);
+  const vp = pv && pv.viewport;
+  if(container.clientWidth < 700 && vp && vp.width > vp.height * 1.15){
+    pdfViewer.currentScale = Math.min(ZMAX, pdfViewer.currentScale * 2.6);
+  }
+}
+eventBus.on('pagesinit', () => {
+  initialScale(Math.min(startPage, pdfViewer.pagesCount) - 1);
+  pdfViewer.currentPageNumber = Math.min(startPage, pdfViewer.pagesCount);
+  updatePageUI(pdfViewer.currentPageNumber);
+  $('vstate').hidden = true;
+  if(terms.length){
+    $('hitQ').textContent = terms.join(' ');
+    $('hitChip').classList.add('on');
+    // 該当ページから検索を始めるので、そのページのヒットが最初に強調される
+    wantCenter = true;
+    eventBus.dispatch('find', {
+      source: null, type: '', query: terms.length === 1 ? terms[0] : terms,
+      caseSensitive: false, entireWord: false, highlightAll: true, findPrevious: false, matchDiacritics: false,
+    });
+  }
+});
+eventBus.on('pagechanging', e => updatePageUI(e.pageNumber));
+eventBus.on('updatefindmatchescount', e => { $('hitN').textContent = e.matchesCount.total; });
+eventBus.on('updatefindcontrolstate', e => { if(e.matchesCount) $('hitN').textContent = e.matchesCount.total; });
+
+// 注目中のヒットを画面の中央へ（PDF.js標準は上端ぎりぎりに寄せるため）
+// 検索を開始したとき・「次のヒット」を押したときだけ中央寄せする（読んでいる最中に勝手に動かさない）
+let wantCenter = false, centerTimer = null;
+eventBus.on('updatetextlayermatches', () => {
+  if(!wantCenter) return;
+  clearTimeout(centerTimer);
+  centerTimer = setTimeout(() => {
+    const el = container.querySelector('.textLayer .highlight.selected');
+    if(el){ el.scrollIntoView({ block: 'center', inline: 'center' }); wantCenter = false; }
+  }, 60);
+});
+
+// ---- 操作ボタン ----
+const zoomTo = s => { pdfViewer.currentScale = Math.min(ZMAX, Math.max(ZMIN, s)); };
+$('btnPrev').addEventListener('click', () => { pdfViewer.currentPageNumber = Math.max(1, pdfViewer.currentPageNumber - 1); });
+$('btnNext').addEventListener('click', () => { pdfViewer.currentPageNumber = Math.min(pdfViewer.pagesCount, pdfViewer.currentPageNumber + 1); });
+$('btnIn').addEventListener('click', () => zoomTo(pdfViewer.currentScale * 1.25));
+$('btnOut').addEventListener('click', () => zoomTo(pdfViewer.currentScale / 1.25));
+$('btnFit').addEventListener('click', () => { pdfViewer.currentScaleValue = fitValue(); });
+$('btnHit').addEventListener('click', () => {
+  wantCenter = true;
+  eventBus.dispatch('find', {
+    source: null, type: 'again', query: terms.length === 1 ? terms[0] : terms,
+    caseSensitive: false, entireWord: false, highlightAll: true, findPrevious: false, matchDiacritics: false,
+  });
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){ close(); }
+  else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ $('btnPrev').click(); }
+  else if(e.key === 'ArrowRight' || e.key === 'PageDown'){ $('btnNext').click(); }
+});
+window.addEventListener('resize', () => {
+  if(pdfViewer.currentScaleValue === 'page-width' || pdfViewer.currentScaleValue === 'auto') pdfViewer.currentScaleValue = fitValue();
+});
+
+// ---- ピンチで拡大縮小（2本指） ----
+let pinch = null;
+const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+container.addEventListener('touchstart', e => {
+  if(e.touches.length === 2){ pinch = { d0: dist(e.touches), s0: pdfViewer.currentScale, r: 1 }; }
+}, { passive: true });
+container.addEventListener('touchmove', e => {
+  if(!pinch || e.touches.length !== 2) return;
+  e.preventDefault();
+  pinch.r = Math.min(ZMAX / pinch.s0, Math.max(ZMIN / pinch.s0, dist(e.touches) / pinch.d0));
+  $('viewer').style.transform = `scale(${pinch.r})`;
+}, { passive: false });
+container.addEventListener('touchend', () => {
+  if(!pinch) return;
+  $('viewer').style.transform = '';
+  zoomTo(pinch.s0 * pinch.r);
+  pinch = null;
+});
+
+// ---- 読み込み ----
+try{
+  const doc = await pdfjsLib.getDocument({
+    url: file,
+    cMapUrl: './pdfjs/cmaps/', cMapPacked: true,
+    standardFontDataUrl: './pdfjs/standard_fonts/',
+    wasmUrl: './pdfjs/wasm/',
+  }).promise;
+  pdfViewer.setDocument(doc);
+  linkService.setDocument(doc, null);
+  $('pageTotal').textContent = doc.numPages;
+  $('fileSub').textContent = terms.length ? `p.${startPage} を表示` : `全${doc.numPages}ページ`;
+  container.focus({ preventScroll: true });
+}catch(err){
+  showState('LOAD ERROR', 'PDFを読み込めませんでした（通信状態を確認してください）');
+  $('fileSub').textContent = '読み込み失敗';
+}
+</script>
+</body>
+</html>

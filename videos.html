@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
 <link rel="stylesheet" href="theme.css">
 <script src="pwa.js" defer></script>
+<script src="pdfview.js" defer></script>
 <style>
   main.container{display:flex;flex-direction:column;gap:22px;}
 
@@ -53,6 +54,8 @@
   .vtitle{font-size:15px;font-weight:700;color:var(--txt);text-decoration:none;}
   .vtitle:hover{color:var(--lime);}
   .vsrc{font-family:var(--font-en);font-size:12px;color:var(--txt-faint);}
+  .vsrcbadge{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid var(--pill-line);color:var(--txt-dim);}
+  .vsrcbadge.new{border-color:var(--lime);color:var(--lime);}
   .vsrc a{color:var(--txt-dim);}
   .vsrc a:hover{color:var(--lime);}
 
@@ -69,7 +72,7 @@
   <div class="container">
     <div class="brand-row">
       <div class="brand"><b>MAG CoP</b><span>Code of Points Search</span></div>
-      <span class="brand-meta">情報33号 · <span id="vidCount">—</span>本</span>
+      <span class="brand-meta">情報33号 ＋ FIGニュースレター · <span id="vidCount">—</span>本</span>
     </div>
     <div class="title">
       <span class="kicker">体操競技男子</span>
@@ -90,7 +93,7 @@
   <div id="list"><div class="state"><div class="big">· · ·</div>動画リストを読み込み中…</div></div>
 
   <footer class="site-foot">
-    <span>出典：男子体操競技情報33号（日本体操協会）</span>
+    <span>出典：男子体操競技情報33号、FIGニュースレター No.4 国内適用（日本体操協会）</span>
     <span>サムネイルをタップでYouTube再生</span>
   </footer>
 </main>
@@ -105,7 +108,7 @@ const ORDER = ['ゆか','あん馬','つり輪','跳馬','平行棒','鉄棒',
                '採点規則修正・追加情報','タイ・ブレイク','2026年度国内内規','マナー・モラル'];
 const PLAY = `<span class="play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg></span>`;
 
-fetch('videos_info33.json')
+fetch('videos.json')
   .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
   .then(videos=>{
     document.getElementById('vidCount').textContent = videos.length;
@@ -127,14 +130,18 @@ fetch('videos_info33.json')
     // 種目ごとのカード
     document.getElementById('list').innerHTML = keys.map(k=>{
       const vs = groups.get(k);
-      const cards = vs.map((v,i)=>{
+      const seq = {};
+      const cards = vs.map(v=>{
         const id = ytid(v.url);
-        const label = `${k} · 動画 ${String(i+1).padStart(2,'0')}`;
+        seq[v.source] = (seq[v.source]||0) + 1;
+        const label = v.title || `${k} · 動画 ${String(seq[v.source]).padStart(2,'0')}`;
+        const isNew = v.source !== '情報33号';
         const img = id ? `<img src="https://img.youtube.com/vi/${esc(id)}/mqdefault.jpg" alt="" loading="lazy">` : '';
         return `
           <article class="vcard">
             <a class="thumb" href="${esc(v.url)}" target="_blank" rel="noopener" aria-label="${esc(label)}を再生">${img}${PLAY}</a>
             <div class="vmeta">
+              <span class="vsrcbadge${isNew?' new':''}">${esc(v.source||'情報33号')}</span>
               <a class="vtitle" href="${esc(v.url)}" target="_blank" rel="noopener">${esc(label)}</a>
               <span class="vsrc">出典: <a href="${esc(v.file)}#page=${v.page}" target="_blank" rel="noopener">${esc(v.file.split('/').pop())} p.${v.page}</a></span>
             </div>
@@ -157,7 +164,7 @@ fetch('videos_info33.json')
   .catch(err=>{
     document.getElementById('list').innerHTML =
       `<div class="state"><div class="big">LOAD ERROR</div>`+
-      `videos_info33.json を読み込めません（${esc(err.message)}）<br>`+
+      `videos.json を読み込めません（${esc(err.message)}）<br>`+
       `<span class="accent">file:// 直開きは不可</span> — python3 -m http.server か GitHub Pages で開いてください</div>`;
   });
 </script>
